@@ -5,24 +5,18 @@ import matplotlib.pyplot as plt
 from scipy.special import erfc
 import argparse
 
-# -------------------------------------------------------------------------
 # Load fixed LDPC H
-# -------------------------------------------------------------------------
 from ldpc_H_matrix import H
 
 assert H.shape == (500, 1000), f"Expected (500,1000), got {H.shape}"
 assert np.all(H.sum(axis=0) == 3), "Column weights are not all 3"
 assert np.all(H.sum(axis=1) == 6), "Row weights are not all 6"
 
-# -------------------------------------------------------------------------
 # Helper: non-zero sign
-# -------------------------------------------------------------------------
 def nzsign(x):
     return np.where(x < 0, -1.0, 1.0)
 
-# -------------------------------------------------------------------------
 # Horizontal step (α-Min-Sum)
-# -------------------------------------------------------------------------
 def horizontal_step_min_sum(H, Q, alpha=0.8):
     E = (H == 1)
     m, n = H.shape
@@ -46,18 +40,14 @@ def horizontal_step_min_sum(H, Q, alpha=0.8):
     R[~E] = 0.0
     return R
 
-# -------------------------------------------------------------------------
 # Vertical step
-# -------------------------------------------------------------------------
 def vertical_step(H, R, q):
     E = (H == 1)
     Q = q[None, :] + R.sum(axis=0)[None, :] - R
     Q[~E] = 0.0
     return Q
 
-# -------------------------------------------------------------------------
 # Decode one frame
-# -------------------------------------------------------------------------
 def min_sum_decode_single(H, y, sigma2, max_iter=50, alpha=0.8):
     q = (2.0 * y) / sigma2
     Q = np.where(H, q[None, :], 0.0)
@@ -74,9 +64,7 @@ def min_sum_decode_single(H, y, sigma2, max_iter=50, alpha=0.8):
 
     return decoded, max_iter, False
 
-# -------------------------------------------------------------------------
 # Monte-Carlo simulation WITH error-limit stopping rule
-# -------------------------------------------------------------------------
 def simulate_min_sum_ber(H,
                          ebn0_dB_range,
                          frames_per_snr,
@@ -158,9 +146,7 @@ def simulate_min_sum_ber(H,
 
     return ber, avg_iters
 
-# -------------------------------------------------------------------------
 # Entrypoint with CLI arguments
-# -------------------------------------------------------------------------
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="LDPC α-Min-Sum BER simulation with error-limit stopping.")
     parser.add_argument("--alpha", type=float, default=0.80, help="Normalized Min-Sum alpha (e.g. 0.75..0.9)")

@@ -1,25 +1,53 @@
-# Channel
+# channel Package
 
-This section samples physical Pauli errors for the QLDPC Monte Carlo simulations.
+This package models the **quantum noise channel**.
 
-## Files
+Currently only the **depolarizing channel** is implemented.
 
-### `depolarizing.py`
+---
 
-Defines the depolarizing channel.
+# Files
 
-Classes:
+### depolarizing.py
 
-- `DepolarizingChannel`: dataclass storing an optional random seed and NumPy random generator.
+Implements a depolarizing channel.
 
-Methods:
+For each qubit:
 
-- `__post_init__()`: creates `self.rng`.
-- `sample_error(n, p)`: samples an `n`-qubit Pauli error and returns `(ex, ez)` arrays. It maps `X -> (1,0)`, `Y -> (1,1)`, `Z -> (0,1)`, and `I -> (0,0)`.
-- `sample_error_batch(batch_size, n, p)`: samples a batch by repeatedly calling `sample_error`.
-- `channel_binary_prior(p)`: returns the binary prior `(p0, p1)` used by CSS BP, where `p1 = 2p/3`.
+No error with probability:
 
-## Theory
+1 - p
 
-For a symmetric depolarizing channel, an X component appears for X or Y errors, and a Z component appears for Z or Y errors. Therefore each binary component has marginal probability `2p/3`.
+Error with probability:
 
+p
+
+The error is uniformly chosen from:
+
+X  
+Y  
+Z
+
+---
+
+# Binary Representation
+
+For stabilizer simulation we convert Pauli errors into binary form.
+
+Pauli error:
+
+X → (1,0)  
+Z → (0,1)  
+Y → (1,1)
+
+This allows the simulation to operate using binary matrices.
+
+---
+
+# Relation to the Papers
+
+The depolarizing channel is approximated as a **Binary Symmetric Channel** with crossover probability:
+
+2p / 3
+
+This approximation is used in the BP decoder.

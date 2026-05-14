@@ -1,3 +1,16 @@
+"""
+Purpose:
+    Build Tanner-graph lookup structures for binary BP decoders.
+
+Process:
+    Convert nonzero entries of H into flat edge arrays plus check-major and
+    variable-major index ranges.
+
+Theory link:
+    BP sends messages along Tanner-graph edges. Precomputed edge layouts keep
+    flooding, variable-scheduled, and check-scheduled updates consistent.
+"""
+
 from dataclasses import dataclass
 
 import numpy as np
@@ -30,57 +43,58 @@ class BPGraph:
 
 
 def build_bp_graph(H: np.ndarray) -> BPGraph:
+    """
+    Convert a binary parity-check matrix into a BPGraph.
+
+    Role in pipeline:
+        Gives decoders fast access to all variables attached to a check and
+        all checks attached to a variable.
+    """
     H = np.asarray(H, dtype=np.uint8)
     if H.ndim != 2:
         raise ValueError("H must be 2D")
 
     m, n = H.shape
+    rows, cols = np.nonzero(H)
+    edge_count = int(rows.size)
 
-    check_to_var: list[list[int]] = []
-    for i in range(m):
-        check_to_var.append(np.where(H[i] == 1)[0].tolist())
+    check_counts = np.bincount(rows, minlength=m).astype(np.int64)
+    var_counts = np.bincount(cols, minlength=n).astype(np.int64)
 
-    var_to_check: list[list[int]] = []
-    for j in range(n):
-        var_to_check.append(np.where(H[:, j] == 1)[0].tolist())
+    check_to_var: list[list[int]] = [[] for _ in range(m)]
+    var_to_check: list[list[int]] = [[] for _ in range(n)]
+    for r, c in zip(rows.tolist(), cols.tolist()):
+        check_to_var[r].append(c)
+        var_to_check[c].append(r)
 
-    # Build edges in check-major order
-    edge_var_list: list[int] = []
-    edge_check_list: list[int] = []
-    edge_pos_in_check_list: list[int] = []
+    check_edge_ptr = np.empty(m + 1, dtype=np.int64)
+    check_edge_ptr[0] = 0
+    np.cumsum(check_counts, out=check_edge_ptr[1:])
 
-    check_edge_ptr = np.zeros(m + 1, dtype=np.int64)
-    for c in range(m):
-        check_edge_ptr[c] = len(edge_var_list)
-        for local_pos, v in enumerate(check_to_var[c]):
-            edge_var_list.append(v)
-            edge_check_list.append(c)
-            edge_pos_in_check_list.append(local_pos)
-    check_edge_ptr[m] = len(edge_var_list)
+    edge_var = cols.astype(np.int64, copy=True)
+    edge_check = rows.astype(np.int64, copy=True)
+    edge_pos_in_check = np.empty(edge_count, dtype=np.int64)
+    if edge_count:
+        edge_pos_in_check[:] = np.concatenate(
+            [np.arange(count, dtype=np.int64) for count in check_counts if count > 0]
+        )
 
-    edge_var = np.asarray(edge_var_list, dtype=np.int64)
-    edge_check = np.asarray(edge_check_list, dtype=np.int64)
-    edge_pos_in_check = np.asarray(edge_pos_in_check_list, dtype=np.int64)
-
-    E = edge_var.size
+    E = edge_count
     check_edges = np.arange(E, dtype=np.int64)
 
-    # Variable-major buckets
-    var_edge_buckets: list[list[int]] = [[] for _ in range(n)]
+    var_edge_ptr = np.empty(n + 1, dtype=np.int64)
+    var_edge_ptr[0] = 0
+    np.cumsum(var_counts, out=var_edge_ptr[1:])
+
+    var_edges_list: list[int] = [0] * E
+    edge_pos_in_var = np.zeros(E, dtype=np.int64)
+    var_offsets = var_edge_ptr[:-1].copy()
     for e in range(E):
         v = int(edge_var[e])
-        var_edge_buckets[v].append(e)
-
-    var_edge_ptr = np.zeros(n + 1, dtype=np.int64)
-    var_edges_list: list[int] = []
-    edge_pos_in_var = np.zeros(E, dtype=np.int64)
-
-    for v in range(n):
-        var_edge_ptr[v] = len(var_edges_list)
-        for local_pos, e in enumerate(var_edge_buckets[v]):
-            var_edges_list.append(e)
-            edge_pos_in_var[e] = local_pos
-    var_edge_ptr[n] = len(var_edges_list)
+        slot = int(var_offsets[v])
+        var_edges_list[slot] = e
+        edge_pos_in_var[e] = slot - int(var_edge_ptr[v])
+        var_offsets[v] += 1
     var_edges = np.asarray(var_edges_list, dtype=np.int64)
 
     edge_id_of_pair = -np.ones((n, m), dtype=np.int64)

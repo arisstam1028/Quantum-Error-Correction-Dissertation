@@ -4,9 +4,7 @@ def depolarizing_channel_final(save_path=None, dpi=600):
     fig, ax = plt.subplots(figsize=(12, 6.5))
     ax.axis("off")
 
-    # -------------------------
     # Layout
-    # -------------------------
     x_trunk = 0.0
     x_branch = 2.6
 
@@ -20,14 +18,10 @@ def depolarizing_channel_final(save_path=None, dpi=600):
     y_Z = 2.1
     y_Y = 0.9
 
-    # -------------------------
     # Unified text size
-    # -------------------------
     FS = 22
 
-    # -------------------------
     # Helpers
-    # -------------------------
     def arrow(a, b, lw=2.2):
         ax.annotate(
             "", xy=b, xytext=a,
@@ -75,18 +69,14 @@ def depolarizing_channel_final(save_path=None, dpi=600):
         ax.text(cx1, cy2, a21, fontsize=FS, ha="center", va="center")
         ax.text(cx2, cy2, a22, fontsize=FS, ha="center", va="center")
 
-    # -------------------------
     # Diagram title
-    # -------------------------
     ax.text(
         x_trunk + 2.5, y_top + 1.2,
         r"$\mathrm{Depolarisation\ Channel}$",
         fontsize=FS, ha="center", va="bottom"
     )
 
-    # -------------------------
     # Root
-    # -------------------------
     ax.plot(x_trunk, y_top, "ko", markersize=8)
     ax.text(x_trunk, y_top + 0.55,
             r"$a|0\rangle + b|1\rangle$",
@@ -97,17 +87,13 @@ def depolarizing_channel_final(save_path=None, dpi=600):
     ax.text(x_trunk - 0.55, (y_I + y_X) / 2,
             r"$p$", fontsize=FS, ha="right", va="center")
 
-    # -------------------------
     # Branches
-    # -------------------------
     branch(y_I, r"$\mathbf{I}$", r"$a|0\rangle + b|1\rangle$", r"$(1-p)$")
     branch(y_X, r"$\mathbf{X}$", r"$a|1\rangle + b|0\rangle$", r"$\frac{p}{3}$")
     branch(y_Z, r"$\mathbf{Z}$", r"$a|0\rangle - b|1\rangle$", r"$\frac{p}{3}$")
     branch(y_Y, r"$\mathbf{Y}$", r"$i a|1\rangle - i b|0\rangle$", r"$\frac{p}{3}$")
 
-    # -------------------------
     # Pauli operators title
-    # -------------------------
     ax.text(x_mat + 0.70, y_top - 0.25,
             r"$\mathrm{Pauli\ operators}$",
             fontsize=FS, ha="center", va="center")

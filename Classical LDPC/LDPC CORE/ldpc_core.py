@@ -1,9 +1,7 @@
 import numpy as np
 import time
 
-# ============================================
 # Step 1: Build a regular LDPC parity-check matrix
-# ============================================
 
 def build_regular_h(n=1000, col_w=3, row_w=6, max_attempts=5000, seed=12345):
     """
@@ -41,9 +39,7 @@ def build_regular_h(n=1000, col_w=3, row_w=6, max_attempts=5000, seed=12345):
     raise RuntimeError("Failed to build regular H after many attempts")
 
 
-# ============================================
 # Step 2: Hard decision and syndrome
-# ============================================
 
 def hard_decision(q_hat):
     """
@@ -62,9 +58,7 @@ def syndrome(H, c):
     return H.dot(c) % 2
 
 
-# ============================================
 # Step 3: Min-Sum decoding (iterative)
-# ============================================
 
 def min_sum_decode(H, y, sigma2, max_iter=50, c_true=None, ber_traj=None):
     """
@@ -97,9 +91,7 @@ def min_sum_decode(H, y, sigma2, max_iter=50, c_true=None, ber_traj=None):
     it_used = 0
 
     for it in range(1, max_iter + 1):
-        # -------------------------
         # Horizontal step: check nodes → variable nodes
-        # -------------------------
         R = np.zeros((m, n), dtype=float)
         for i in range(m):
             idx_vars = np.flatnonzero(H[i, :])
@@ -118,9 +110,7 @@ def min_sum_decode(H, y, sigma2, max_iter=50, c_true=None, ber_traj=None):
                 prod_except = total_sign / signs
                 R[i, idx_vars] = prod_except * min_except
 
-        # -------------------------
         # Vertical step: variable nodes → check nodes
-        # -------------------------
         Q_new = np.zeros((m, n), dtype=float)
         for j in range(n):
             idx_checks = np.flatnonzero(H[:, j])
@@ -131,9 +121,7 @@ def min_sum_decode(H, y, sigma2, max_iter=50, c_true=None, ber_traj=None):
                 Q_new[i, j] = q[j] + np.sum(R[other_checks, j])
         Q = Q_new
 
-        # -------------------------
         # Posterior LLR and hard decision
-        # -------------------------
         q_hat = q + np.sum(R, axis=0)
         decoded = hard_decision(q_hat)
 
@@ -152,9 +140,7 @@ def min_sum_decode(H, y, sigma2, max_iter=50, c_true=None, ber_traj=None):
     return decoded, it_used, converged
 
 
-# ============================================
 # Step 4: Monte Carlo simulation (no plotting)
-# ============================================
 
 def simulate_min_sum_ber(
     n=1000,

@@ -16,9 +16,7 @@ from Table_Decoding_and_Error_Correction.plotter import StabilizerCircuitPlotter
 from stabilizer_config import get_active_stabilizers
 
 
-# ============================
 # GLOBAL MODES
-# ============================
 
 simulate = True
 test_syndrome_table = False
@@ -26,10 +24,6 @@ test_syndrome_table = False
 # 🔑 THIS is the important switch
 use_paper_stabilizers_for_measurement = True
 
-
-# ============================
-# UTILITIES
-# ============================
 
 def simulate_syndrome(qc) -> str:
     backend = AerSimulator()
@@ -71,9 +65,7 @@ def print_symplectic_matrix(title: str, rows: list[list[int]]) -> None:
         print(f"  {x} | {z}")
 
 
-# ============================
 # SINGLE RUN
-# ============================
 
 def run_single_iteration_mode() -> None:
     print_section("SINGLE-ITERATION MODE")
@@ -182,9 +174,7 @@ def run_single_iteration_mode() -> None:
     )
 
 
-# ============================
 # MAIN
-# ============================
 
 def main() -> None:
     if test_syndrome_table:

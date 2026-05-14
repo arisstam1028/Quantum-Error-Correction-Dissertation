@@ -1,3 +1,18 @@
+# Purpose:
+#   Converts five-qubit stabilizer generators into binary symplectic
+#   form and computes syndromes for sampled Pauli errors.
+#
+# Process:
+#   1. Map each Pauli stabilizer string to X and Z binary rows.
+#   2. Store the stabilizer check matrices Hx and Hz.
+#   3. Compute syndrome bits from the symplectic product with an error.
+#
+# Theory link:
+#   Stabilizer syndrome measurement identifies which stabilizer
+#   constraints are violated without measuring the encoded logical
+#   state directly. The binary symplectic product gives the same
+#   commutation test as Pauli operator algebra.
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -9,6 +24,13 @@ import numpy as np
 class BinarySymplectic:
     @staticmethod
     def pauli_char_to_bits(pauli: str) -> tuple[int, int]:
+        """
+        Convert one Pauli symbol to its binary symplectic coordinates.
+
+        Role in pipeline:
+            Implements the I, X, Z, Y to (x, z) map used by all syndrome
+            and residual-error calculations in this simulation.
+        """
         if pauli == "I":
             return 0, 0
         if pauli == "X":
@@ -21,6 +43,12 @@ class BinarySymplectic:
 
     @classmethod
     def pauli_string_to_bsf(cls, pauli_string: str) -> tuple[np.ndarray, np.ndarray]:
+        """
+        Convert a full Pauli string into separate X and Z binary vectors.
+
+        Role in pipeline:
+            Builds the rows of Hx and Hz from the stabilizer generators.
+        """
         ex = np.zeros(len(pauli_string), dtype=np.uint8)
         ez = np.zeros(len(pauli_string), dtype=np.uint8)
 
@@ -56,6 +84,13 @@ class StabilizerMeasurement:
         object.__setattr__(self, "n_stabilizers", len(self.stabilizers))
 
     def compute_syndrome(self, ex: np.ndarray, ez: np.ndarray) -> str:
+        """
+        Compute the stabilizer syndrome for a binary symplectic error.
+
+        Role in pipeline:
+            Detects which stabilizer generators anticommute with the
+            sampled error, producing the lookup key for table decoding.
+        """
         self.validate_binary_error(ex, ez, self.n_qubits)
 
         # syndrome_i = hx_i · ez + hz_i · ex mod 2

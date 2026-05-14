@@ -1,3 +1,17 @@
+# Purpose:
+#   Converts Pauli stabilizer generators into binary symplectic checks
+#   and computes five-qubit code syndromes.
+#
+# Process:
+#   1. Translate each stabilizer string into X and Z binary rows.
+#   2. Store Hx and Hz for later construction of the BP parity check.
+#   3. Compute syndrome bits from the symplectic commutation product.
+#
+# Theory link:
+#   Stabilizer measurements identify violated parity constraints without
+#   observing the logical state. The binary symplectic product implements
+#   the Pauli commutation rule used in syndrome extraction.
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -9,6 +23,13 @@ import numpy as np
 class BinarySymplectic:
     @staticmethod
     def pauli_char_to_bits(pauli: str) -> tuple[int, int]:
+        """
+        Convert one Pauli character to binary symplectic coordinates.
+
+        Role in pipeline:
+            Defines the common representation used by the channel,
+            syndrome calculator, and BP decoder wrapper.
+        """
         if pauli == "I":
             return 0, 0
         if pauli == "X":
@@ -21,6 +42,12 @@ class BinarySymplectic:
 
     @classmethod
     def pauli_string_to_bsf(cls, pauli_string: str) -> tuple[np.ndarray, np.ndarray]:
+        """
+        Convert a stabilizer Pauli string into X and Z binary vectors.
+
+        Role in pipeline:
+            Builds the Hx and Hz matrices used to calculate syndromes.
+        """
         ex = np.zeros(len(pauli_string), dtype=np.uint8)
         ez = np.zeros(len(pauli_string), dtype=np.uint8)
 
@@ -56,6 +83,13 @@ class StabilizerMeasurement:
         object.__setattr__(self, "n_stabilizers", len(self.stabilizers))
 
     def compute_syndrome(self, ex: np.ndarray, ez: np.ndarray) -> str:
+        """
+        Compute the stabilizer syndrome for a binary symplectic error.
+
+        Role in pipeline:
+            Produces the parity constraints that BP must satisfy when
+            estimating the underlying binary error pattern.
+        """
         self.validate_binary_error(ex, ez, self.n_qubits)
 
         # syndrome_i = hx_i · ez + hz_i · ex mod 2

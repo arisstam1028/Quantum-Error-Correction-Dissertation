@@ -48,9 +48,7 @@ class BasisEncoder:
         self.encode_bits(qc, qubits, bits)
         return bits
 
-    # -------------------------
     # Printing helpers (as requested)
-    # -------------------------
     def print_encoding_summary_bits(self, bits: Sequence[int], qubits: Sequence[int] | None = None) -> None:
         if qubits is None:
             qubits = list(range(len(bits)))

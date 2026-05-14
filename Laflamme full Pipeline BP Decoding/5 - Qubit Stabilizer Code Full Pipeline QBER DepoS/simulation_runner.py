@@ -1,3 +1,18 @@
+# Purpose:
+#   Compares five-qubit BP decoding under an independent-BSC channel
+#   approximation and an exact symmetric depolarizing channel.
+#
+# Process:
+#   1. Convert stabilizer checks into one binary BP parity-check matrix.
+#   2. Sample physical errors for each channel model.
+#   3. Decode the measured syndrome with BP and form residual errors.
+#   4. Estimate frame-error and QBER-style statistics for plotting.
+#
+# Theory link:
+#   The BP decoder estimates a binary error vector [ex | ez] satisfying
+#   the stabilizer syndrome. Residual error is actual error plus estimated
+#   correction; non-zero residual components are counted as failures here.
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -11,9 +26,7 @@ from Table_Decoding_and_Error_Correction.plotter import StabilizerCircuitPlotter
 from Table_Decoding_and_Error_Correction.stabilizer_measurement import StabilizerMeasurement
 
 
-# =========================
 # Binary symplectic helpers
-# =========================
 class BinarySymplectic:
     @staticmethod
     def pauli_char_to_bits(pauli: str) -> tuple[int, int]:
@@ -68,12 +81,17 @@ class BinarySymplectic:
         ex2: np.ndarray,
         ez2: np.ndarray,
     ) -> tuple[np.ndarray, np.ndarray]:
+        """
+        Combine two Pauli patterns by GF(2) addition of X and Z parts.
+
+        Role in pipeline:
+            Forms residual errors after the BP-estimated correction is
+            applied to the sampled physical error.
+        """
         return ((ex1 ^ ex2).astype(np.uint8), (ez1 ^ ez2).astype(np.uint8))
 
 
-# =========================
 # 5-qubit code
-# =========================
 @dataclass(frozen=True)
 class FiveQubitCode:
     stabilizers: Sequence[str] = (
@@ -87,9 +105,7 @@ class FiveQubitCode:
         object.__setattr__(self, "n_qubits", len(self.stabilizers[0]))
 
 
-# =========================
 # BP wrapper for quantum code
-# =========================
 class FiveQubitBPDecoder:
     def __init__(self, measurement: StabilizerMeasurement, max_iters: int = 30):
         self.measurement = measurement
@@ -101,6 +117,13 @@ class FiveQubitBPDecoder:
         self.bp = BinaryBPDecoder(H_bp, max_iters=max_iters)
 
     def decode(self, syndrome: str, physical_p: float) -> tuple[np.ndarray, np.ndarray]:
+        """
+        Decode one stabilizer syndrome using binary BP.
+
+        Role in pipeline:
+            Converts the quantum syndrome into a binary parity problem and
+            splits the resulting estimate back into ex and ez corrections.
+        """
         syndrome_vec = np.array([int(b) for b in syndrome], dtype=np.uint8)
 
         # matched BP prior for the independent-BSC approximation
@@ -115,9 +138,7 @@ class FiveQubitBPDecoder:
         return ex_hat, ez_hat
 
 
-# =========================
 # Simulation config/results
-# =========================
 @dataclass(frozen=True)
 class SimulationConfig:
     probabilities: Iterable[float]
@@ -143,9 +164,7 @@ class ComparisonResults:
     symmetric: ChannelResults
 
 
-# =========================
 # Simulation runner
-# =========================
 class SimulationRunner:
     def __init__(self, code: FiveQubitCode | None = None):
         self.code = code or FiveQubitCode()
@@ -164,6 +183,13 @@ class SimulationRunner:
         bp_max_iters: int,
         use_independent_bsc_approx: bool,
     ) -> ChannelResults:
+        """
+        Run the BP Monte Carlo loop for one channel model.
+
+        Role in pipeline:
+            Repeats sampling, syndrome extraction, BP decoding, and residual
+            checking for each physical error probability.
+        """
         channel = DepolarizingChannel(
             seed=seed,
             use_independent_bsc_approx=use_independent_bsc_approx,
@@ -252,9 +278,7 @@ class SimulationRunner:
         )
 
 
-# =========================
 # Reporting
-# =========================
 class SimulationReport:
     def __init__(self, code: FiveQubitCode):
         self.code = code

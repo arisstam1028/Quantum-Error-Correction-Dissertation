@@ -1,8 +1,28 @@
+"""
+Purpose:
+    Run the MacKay QLDPC Monte Carlo sweep over physical error rates.
+
+Process:
+    Repeatedly call the single-frame runner until each probability reaches
+    its frame limit or failure limit, then report FER and average iterations.
+
+Theory link:
+    Early stopping by failure count saves time at high physical error rates
+    while still estimating the frame error rate from observed frames.
+"""
+
 from simulation.metrics import frame_error_rate
 from simulation.runner import QLDPCRunner
 
 
 def run_monte_carlo(config) -> list[dict]:
+    """
+    Execute the configured probability sweep.
+
+    Role in pipeline:
+        Aggregates frame-level success and decoder effort into rows consumed
+        by reporting and plotting functions.
+    """
     runner = QLDPCRunner(config)
     results: list[dict] = []
 

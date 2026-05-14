@@ -21,9 +21,7 @@ import matplotlib.pyplot as plt
 from scipy.special import erfc
 
 
-# -----------------------------------------------------------------------------
 # Build regular H (kept similar to your original but slightly more vectorised)
-# -----------------------------------------------------------------------------
 def build_regular_h(n, col_w, row_w, max_attempts=2000, rng=None):
     """
     Build a (m x n) binary parity-check matrix H with:
@@ -62,9 +60,7 @@ def build_regular_h(n, col_w, row_w, max_attempts=2000, rng=None):
     raise RuntimeError("Failed to build regular H after many attempts")
 
 
-# -----------------------------------------------------------------------------
 # Vectorised horizontal step: compute R (check-to-variable messages)
-# -----------------------------------------------------------------------------
 def horizontal_step_min_sum(H, Q):
     """
     Vectorised Min-Sum horizontal step.
@@ -138,9 +134,7 @@ def horizontal_step_min_sum(H, Q):
     return R
 
 
-# -----------------------------------------------------------------------------
 # Vectorised vertical step: compute Q_new (variable-to-check messages)
-# -----------------------------------------------------------------------------
 def vertical_step(H, R, q):
     """
     Vectorised vertical step.
@@ -166,9 +160,7 @@ def vertical_step(H, R, q):
     return Q_new
 
 
-# -----------------------------------------------------------------------------
 # Vectorised final LLR computation
-# -----------------------------------------------------------------------------
 def compute_q_hat(H, R, q):
     """
     Compute final LLRs:
@@ -179,9 +171,7 @@ def compute_q_hat(H, R, q):
     return q_hat
 
 
-# -----------------------------------------------------------------------------
 # Single frame Min-Sum decode using the vectorised steps
-# -----------------------------------------------------------------------------
 def min_sum_decode_single(H, y, sigma2, max_iter=50):
     """
     Decode one received vector y using the vectorised Min-Sum algorithm.
@@ -223,9 +213,7 @@ def min_sum_decode_single(H, y, sigma2, max_iter=50):
     return decoded, it_used, converged, q_hat, R_first
 
 
-# -----------------------------------------------------------------------------
 # Monte-Carlo simulation harness (unchanged workflow, but uses the faster decode)
-# -----------------------------------------------------------------------------
 def simulate_min_sum_ber(n=100,
                          col_w=3,
                          row_w=6,
@@ -307,9 +295,7 @@ def simulate_min_sum_ber(n=100,
     return ebn0_dB_range, ber, avg_iters
 
 
-# -----------------------------------------------------------------------------
 # Quick correctness test utility (optional)
-# -----------------------------------------------------------------------------
 def _self_test_small():
     """
     Run a tiny consistency test comparing the new vectorised functions
@@ -364,9 +350,7 @@ def _self_test_small():
     print("Self-test passed.")
 
 
-# -----------------------------------------------------------------------------
 # Entrypoint for script execution
-# -----------------------------------------------------------------------------
 if __name__ == "__main__":
     # Optional quick check (uncomment to run small verification)
     # _self_test_small()

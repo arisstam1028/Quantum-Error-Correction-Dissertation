@@ -1,3 +1,14 @@
+# Purpose:
+#   Decode five-qubit syndromes using a single-qubit lookup table.
+#
+# Process:
+#   1. Enumerate identity and all single-qubit X, Y, Z errors.
+#   2. Compute their syndromes with the stabilizer measurement object.
+#   3. Return the stored correction matching an observed syndrome.
+#
+# Theory link:
+#   The five-qubit code corrects any single-qubit Pauli error. Table
+#   decoding maps each syndrome to a representative Pauli correction.
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -19,6 +30,10 @@ class SyndromeTableDecoder:
         Each syndrome is mapped to ONE fixed correction.
 
         Built natively in binary symplectic form.
+
+        Role in pipeline:
+            Precomputes the syndrome-to-correction map used during
+            Monte Carlo simulation.
         """
         n_qubits = self.stabilizer_measurement.n_qubits
         lookup: dict[str, tuple[np.ndarray, np.ndarray]] = {}
@@ -43,6 +58,10 @@ class SyndromeTableDecoder:
     def decode(self, syndrome: str) -> tuple[np.ndarray, np.ndarray]:
         """
         Return fixed correction for this syndrome.
+
+        Role in pipeline:
+            Converts a syndrome into correction vectors (cx, cz), which
+            are combined with the actual error to form a residual.
         """
         if syndrome in self.lookup:
             ex, ez = self.lookup[syndrome]

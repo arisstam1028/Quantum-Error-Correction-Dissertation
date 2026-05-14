@@ -47,9 +47,7 @@ def main():
     # Run simulation (this generates all BER and trajectory data)
     ebn0_dB, ber, avg_iters, ber_vs_iter, H, info = simulate_min_sum_ber()
 
-    # ===============================
     # Plot 1: BER vs Eb/N0
-    # ===============================
     ebn0_lin = 10.0 ** (ebn0_dB / 10.0)
     ber_uncoded = 0.5 * erfc(np.sqrt(ebn0_lin))
 
@@ -69,9 +67,7 @@ def main():
     plt.legend()
     plt.tight_layout()
 
-    # ===============================
     # Plot 2: BER vs iteration (ALL Eb/N0 curves together)
-    # ===============================
     plot_ber_vs_iteration_all_snr(ebn0_dB, ber_vs_iter)
 
 

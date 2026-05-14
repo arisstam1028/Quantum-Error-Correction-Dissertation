@@ -1,4 +1,16 @@
 # simplified_encoder.py
+# Purpose:
+#   Remove redundant gates from the five-qubit encoder circuit.
+#
+# Process:
+#   1. Compare the stabilizer span produced by a candidate circuit.
+#   2. Try removing selected gates.
+#   3. Keep removals only when the encoded stabilizer span is preserved.
+#
+# Theory link:
+#   Stabilizer encoders can contain circuit-level redundancy. A gate may
+#   be removed when the resulting circuit prepares an equivalent
+#   stabilizer codespace, so encoded behaviour is unchanged.
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -23,6 +35,11 @@ class SimplifySpec:
 
 def _stabilizer_span_matches(Hs, qc: QuantumCircuit) -> bool:
     """
+    Check whether a circuit still generates the required stabilizer span.
+
+    Role in pipeline:
+        Protects simplification from changing the code being encoded.
+
     Boolean version of the successful condition from your Verifier v2:
     - conj=Udg_P_U
     - index_map=direct
@@ -83,6 +100,12 @@ def _stabilizer_span_matches(Hs, qc: QuantumCircuit) -> bool:
 
 
 def _remove_gate_indices(qc: QuantumCircuit, remove_idxs: set[int]) -> QuantumCircuit:
+    """
+    Build a copy of a circuit with selected instruction indices removed.
+
+    Role in pipeline:
+        Creates candidate simplified circuits for verification.
+    """
     out = QuantumCircuit(qc.num_qubits, name=(qc.name + "_pruned" if qc.name else "pruned"))
     for i, (inst, qargs, cargs) in enumerate(qc.data):
         if i in remove_idxs:

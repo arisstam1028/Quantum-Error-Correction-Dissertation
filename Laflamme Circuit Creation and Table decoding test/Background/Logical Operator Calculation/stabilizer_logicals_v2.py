@@ -6,9 +6,7 @@ import itertools
 import numpy as np
 
 
-# ============================================================
 #  GF(2) utilities + symplectic product
-# ============================================================
 
 class GF2:
     @staticmethod
@@ -124,9 +122,7 @@ class GF2Rank:
         return A_ind, kept_rows, pivots
 
 
-# ============================================================
 #  Pauli <-> binary (X|Z)
-# ============================================================
 
 class PauliBinary:
     PAULI_TO_XZ = {
@@ -161,9 +157,7 @@ class PauliBinary:
         return GF2.as_u8(H)
 
 
-# ============================================================
 #  Gaussian elimination over GF(2) on X-half (row ops only)
-# ============================================================
 
 @dataclass
 class ElimResult:
@@ -209,10 +203,8 @@ class XHalfEliminator:
         return ElimResult(H=H, pivot_cols=pivots, r=len(pivots))
 
 
-# ============================================================
 #  Standard-form builder (Hs-like) by choosing a qubit permutation
 #  (Option B: enforce Eq.(18) I2 block in Z-bottom-mid)
-# ============================================================
 
 @dataclass
 class StandardForm:
@@ -485,9 +477,7 @@ class StandardFormBuilder:
         )
 
 
-# ============================================================
 #  Logical operators from Eq.(19)-(20)
-# ============================================================
 
 @dataclass
 class LogicalOps:
@@ -558,9 +548,7 @@ class LogicalOperatorBuilder:
         )
 
 
-# ============================================================
 #  Checks
-# ============================================================
 
 class StabilizerChecks:
     @staticmethod
@@ -577,9 +565,7 @@ class StabilizerChecks:
         return GF2.symplectic_inner(u, v, n) == 1
 
 
-# ============================================================
 #  Pretty printing helpers
-# ============================================================
 
 class Pretty:
     @staticmethod
@@ -612,9 +598,7 @@ class Pretty:
             print(f"  Zbar[{i}] = {Pretty.bits_to_str(zb[:n])} | {Pretty.bits_to_str(zb[n:])}")
 
 
-# ============================================================
 #  Pipeline
-# ============================================================
 
 class StabilizerPipeline:
     @staticmethod

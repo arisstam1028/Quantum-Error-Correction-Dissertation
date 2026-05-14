@@ -19,9 +19,7 @@ import math
 import matplotlib.pyplot as plt
 from scipy.special import erfc
 
-# -----------------------------------------------------------------------------
 # Load your fixed LDPC H matrix ONCE (used for all iterations / frames / SNRs)
-# -----------------------------------------------------------------------------
 from ldpc_H_matrix import H  # must be a numpy array, shape (500, 1000)
 
 # Optional but strongly recommended sanity checks
@@ -30,17 +28,13 @@ assert np.all(H.sum(axis=0) == 3), "Column weights are not all 3"
 assert np.all(H.sum(axis=1) == 6), "Row weights are not all 6"
 
 
-# -----------------------------------------------------------------------------
 # Helper: sign with 0 mapped to +1 (prevents sign-product collapsing to 0)
-# -----------------------------------------------------------------------------
 def nzsign(x):
     """Non-zero sign: returns +1 for x>=0, -1 for x<0 (so sign(0)=+1)."""
     return np.where(x < 0, -1.0, 1.0)
 
 
-# -----------------------------------------------------------------------------
 # Vectorised horizontal step: compute R (check-to-variable messages)
-# -----------------------------------------------------------------------------
 def horizontal_step_min_sum(H, Q):
     r"""
     Vectorised Min-Sum horizontal step.
@@ -111,9 +105,7 @@ def horizontal_step_min_sum(H, Q):
     return R
 
 
-# -----------------------------------------------------------------------------
 # Vectorised vertical step: compute Q_new (variable-to-check messages)
-# -----------------------------------------------------------------------------
 def vertical_step(H, R, q):
     r"""
     Vectorised vertical step.
@@ -132,17 +124,13 @@ def vertical_step(H, R, q):
     return Q_new
 
 
-# -----------------------------------------------------------------------------
 # Vectorised final LLR computation
-# -----------------------------------------------------------------------------
 def compute_q_hat(R, q):
     """q_hat[j] = q[j] + sum_i R[i,j]"""
     return q + R.sum(axis=0)
 
 
-# -----------------------------------------------------------------------------
 # Single frame Min-Sum decode using the vectorised steps
-# -----------------------------------------------------------------------------
 def min_sum_decode_single(H, y, sigma2, max_iter=50):
     """
     Decode one received vector y using vectorised Min-Sum.
@@ -182,9 +170,7 @@ def min_sum_decode_single(H, y, sigma2, max_iter=50):
     return decoded, it_used, converged
 
 
-# -----------------------------------------------------------------------------
 # Monte-Carlo simulation harness using FIXED H and frames LIST
-# -----------------------------------------------------------------------------
 def simulate_min_sum_ber(H,
                          ebn0_dB_range,
                          frames_per_snr,
@@ -268,9 +254,7 @@ def simulate_min_sum_ber(H,
     return ebn0_dB_range, ber, avg_iters
 
 
-# -----------------------------------------------------------------------------
 # Entrypoint
-# -----------------------------------------------------------------------------
 if __name__ == "__main__":
 
     # Eb/N0 points: 0..10 dB (11 points)

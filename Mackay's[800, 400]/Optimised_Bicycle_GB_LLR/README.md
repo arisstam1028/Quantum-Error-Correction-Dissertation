@@ -1,6 +1,6 @@
 # MacKay Bicycle QLDPC Simulation Framework
 
-This is the main QLDPC project. It constructs or loads bicycle CSS parity-check matrices, simulates Pauli depolarizing noise, computes CSS syndromes, decodes with BP-style decoders, optionally applies random perturbation, and plots FER and average iteration counts.
+This is the main QLDPC project. It constructs or loads bicycle CSS parity-check matrices, simulates either an independent BSC approximation or exact symmetric Pauli depolarizing noise, computes CSS syndromes, decodes with BP-style decoders, and plots FER and average iteration counts.
 
 ## Main Theory
 
@@ -16,6 +16,12 @@ The depolarizing channel samples Pauli errors:
 ```text
 I with 1-p
 X, Y, Z with p/3 each
+```
+
+The BSC approximation instead samples the X component and Z component independently with probability:
+
+```text
+p_component = 2p/3
 ```
 
 For binary BP, each component is decoded with effective binary error probability:
@@ -41,12 +47,14 @@ Top-level executable.
 
 Functions:
 
-- `main()`: chooses a matrix module, selects decoder type (`bp`, `svns`, `scns`, or `compare`), optionally enables random perturbation for BP, runs Monte Carlo simulation, prints results, and plots FER/iteration curves.
+- `main()`: chooses a matrix module, selects decoder type (`bp`, `svns`, `scns`, or `compare`), selects channel mode (`bsc`, `depolarizing`, or `both`), runs Monte Carlo simulation, prints results, and plots FER/iteration curves.
+- `run_single_channel(config, channel_mode)`: applies the requested channel model before running the sweep.
 
 Global controls:
 
 - `DECODER_TYPE`: decoder selection.
 - `RUN_FAMILY`: switches between one fixed matrix and a family sweep.
+- `CHANNEL_MODE`: chooses the independent BSC approximation, exact depolarizing channel, or both for comparison.
 
 ### `config.py`
 
@@ -54,12 +62,12 @@ Configuration dataclass.
 
 Classes/functions:
 
-- `QLDPCConfig`: stores matrix module, decoder type, BP parameters, perturbation parameters, probability sweep, frame counts, failure limits, and output options.
+- `QLDPCConfig`: stores matrix module, BP parameters, channel toggle, probability sweep, frame counts, failure limits, and output options.
 - `build_config(matrix_module="matrices.mackay_800_400")`: creates a config and validates that probability/frame/failure lists have matching length.
 
 ## Sections
 
-- `channel`: depolarizing channel sampler.
+- `channel`: BSC-approximation and exact depolarizing channel sampler.
 - `code_construction`: bicycle/circulant construction and code statistics.
 - `core`: GF(2), Pauli, CSS, and syndrome helpers.
 - `decoder`: binary BP graph and decoder.
@@ -85,4 +93,3 @@ Hx Hz^T mod 2  = 0
 ```
 
 The module sets `Hx = H` and `Hz = H`, so the CSS code uses the same bicycle check matrix for X and Z checks.
-

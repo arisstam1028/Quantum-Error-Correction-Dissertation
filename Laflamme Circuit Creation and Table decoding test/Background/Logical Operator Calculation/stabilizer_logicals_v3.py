@@ -5,9 +5,7 @@ from typing import List, Sequence, Optional, Tuple
 import numpy as np
 
 
-# ============================================================
 #  GF(2) utilities + symplectic product
-# ============================================================
 
 class GF2:
     @staticmethod
@@ -75,9 +73,7 @@ class GF2Rank:
         return r
 
 
-# ============================================================
 #  Pauli <-> binary (X|Z)
-# ============================================================
 
 class PauliBinary:
     PAULI_TO_XZ = {"I": (0, 0), "X": (1, 0), "Z": (0, 1), "Y": (1, 1)}
@@ -107,9 +103,7 @@ class PauliBinary:
         return GF2.as_u8(H)
 
 
-# ============================================================
 #  Canonical column sorting (signature = (Xcol bits, Zcol bits))
-# ============================================================
 
 class Canonicalizer:
     @staticmethod
@@ -145,10 +139,8 @@ class Canonicalizer:
         return GF2.as_u8(np.hstack([Xp, Zp]))
 
 
-# ============================================================
 #  Deterministic elimination on X-half
 #  (leftmost pivot col, topmost pivot row)
-# ============================================================
 
 @dataclass
 class ElimResult:
@@ -188,9 +180,7 @@ class XHalfEliminator:
 
         return ElimResult(H=H, pivot_cols=pivots, r=len(pivots))
 
-# ============================================================
 #  StandardForm + enforcing Eq.(18) bottom Z-mid = I
-# ============================================================
 
 @dataclass
 class StandardForm:
@@ -427,9 +417,7 @@ class StandardFormBuilder:
         )
 
 
-# ============================================================
 #  Logical operators from Eq.(19)-(20)
-# ============================================================
 
 @dataclass
 class LogicalOps:
@@ -498,9 +486,7 @@ class LogicalOperatorBuilder:
         return LogicalOps(Xbars=Xbars, Zbars=Zbars, Xbars_perm=Xbars_perm, Zbars_perm=Zbars_perm)
 
 
-# ============================================================
 #  Checks + pretty printing
-# ============================================================
 
 class StabilizerChecks:
     @staticmethod
@@ -544,9 +530,7 @@ class Pretty:
             print(f"  Zbar[{i}] = {Pretty.row_XZ(z, n)}")
 
 
-# ============================================================
 #  Pipeline
-# ============================================================
 
 class StabilizerPipeline:
     @staticmethod

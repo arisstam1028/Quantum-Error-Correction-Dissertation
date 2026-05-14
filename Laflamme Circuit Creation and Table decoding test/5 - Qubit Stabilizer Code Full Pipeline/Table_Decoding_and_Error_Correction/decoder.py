@@ -1,3 +1,15 @@
+# Purpose:
+#   Build a syndrome lookup table for the five-qubit stabilizer code.
+#
+# Process:
+#   1. Compute the syndrome for the identity error.
+#   2. Compute syndromes for every single-qubit X, Y, and Z error.
+#   3. Map each observed syndrome to one fixed Pauli correction.
+#
+# Theory link:
+#   For a distance-3 code, all weight-one Pauli errors have distinct
+#   syndromes. Table decoding corrects by applying a representative
+#   Pauli with the matching syndrome.
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -56,6 +68,13 @@ class SyndromeTableDecoder:
         self.table: Dict[str, DecodedError] = self._build_table()
 
     def _build_table(self) -> Dict[str, DecodedError]:
+        """
+        Construct the hard-decision syndrome table.
+
+        Role in pipeline:
+            Enumerates all correctable single-qubit Pauli errors and
+            stores the correction selected for each syndrome.
+        """
         table: Dict[str, DecodedError] = {}
 
         no_error = "I" * self.n
@@ -91,6 +110,13 @@ class SyndromeTableDecoder:
         return "".join(chars)
 
     def compute_syndrome(self, error: str) -> str:
+        """
+        Compute the syndrome bitstring for a Pauli error.
+
+        Role in pipeline:
+            Identifies which stabilizer generators anticommute with the
+            error and are therefore violated by it.
+        """
         self._validate_pauli_string(error, expected_len=self.n)
 
         bits = []
@@ -101,6 +127,13 @@ class SyndromeTableDecoder:
         return "".join(bits)
 
     def decode(self, syndrome: str) -> DecodedError:
+        """
+        Return the table correction associated with a syndrome.
+
+        Role in pipeline:
+            Converts measured stabilizer violations into a Pauli
+            correction choice.
+        """
         if syndrome not in self.table:
             raise ValueError(
                 f"Unknown syndrome: {syndrome}. "

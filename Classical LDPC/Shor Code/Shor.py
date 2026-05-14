@@ -44,9 +44,7 @@ def shor_encode(alpha=1.0, beta=0.0):
     return qc
 
 
-# =========================
 # Main execution
-# =========================
 
 if __name__ == "__main__":
 

@@ -1,3 +1,17 @@
+# Purpose:
+#   Implements syndrome-based binary belief-propagation decoding.
+#
+# Process:
+#   1. Initialise variable-to-check messages from channel log-likelihoods.
+#   2. Update check nodes to enforce the requested syndrome parity.
+#   3. Update variable nodes by combining priors and incoming messages.
+#   4. Make hard decisions and stop early when the syndrome is matched.
+#
+# Theory link:
+#   BP decodes the binary error pattern, not the quantum state directly.
+#   It assumes approximate independence on the Tanner graph, an assumption
+#   that can be weakened by short cycles and quantum-code degeneracy.
+
 from dataclasses import dataclass
 
 import numpy as np
@@ -9,6 +23,10 @@ from .decoder_result import DecoderResult
 def _prefix_suffix_products(values: np.ndarray) -> np.ndarray:
     """
     For values[0..d-1], return out[k] = product of all values except values[k].
+
+    Role in pipeline:
+        Supports check-node updates by efficiently excluding the edge that
+        is currently receiving a message.
     """
     d = values.size
     if d == 0:
@@ -32,6 +50,13 @@ def _parity_from_check_edges(
     edge_var: np.ndarray,
     check_edge_ptr: np.ndarray,
 ) -> np.ndarray:
+    """
+    Compute the syndrome implied by a hard-decision error estimate.
+
+    Role in pipeline:
+        Tests whether the current BP estimate satisfies all check-node
+        parity constraints, enabling early stopping.
+    """
     predicted = np.zeros(check_edge_ptr.size - 1, dtype=np.uint8)
 
     for c in range(predicted.size):
@@ -60,10 +85,24 @@ class BinaryBPDecoder:
         self.check_edge_ptr = self.graph.check_edge_ptr
 
     def _channel_llr(self, p_error: float) -> float:
+        """
+        Convert a Bernoulli error prior into a log-likelihood ratio.
+
+        Role in pipeline:
+            Initialises BP messages with channel information before
+            syndrome constraints are propagated through the graph.
+        """
         p = float(np.clip(p_error, self.epsilon, 1.0 - self.epsilon))
         return float(np.log((1.0 - p) / p))
 
     def decode(self, syndrome: np.ndarray, p_error: float) -> DecoderResult:
+        """
+        Estimate the binary error vector whose parity matches syndrome.
+
+        Role in pipeline:
+            Performs iterative syndrome BP and returns the hard-decision
+            correction bits together with convergence diagnostics.
+        """
         syndrome = np.asarray(syndrome, dtype=np.uint8)
         if syndrome.shape != (self.m,):
             raise ValueError(f"syndrome must have shape ({self.m},)")
@@ -71,7 +110,7 @@ class BinaryBPDecoder:
         mu = self._channel_llr(p_error)
         sigma = np.where(syndrome == 1, -1.0, 1.0).astype(np.float64)
 
-        # messages
+        # Messages start from the channel prior before any parity information.
         mv_to_c = np.full(self.num_edges, mu, dtype=np.float64)
         mc_to_v = np.zeros(self.num_edges, dtype=np.float64)
 
@@ -82,7 +121,7 @@ class BinaryBPDecoder:
         iters_used = 0
 
         for it in range(1, self.max_iters + 1):
-            # Check update
+            # Check-node update: enforce each syndrome parity constraint.
             tanh_half_mv = np.tanh(0.5 * np.clip(mv_to_c, -self.llr_clip, self.llr_clip))
 
             for c in range(self.m):
@@ -99,7 +138,7 @@ class BinaryBPDecoder:
                 mc_to_v[start:end] = 2.0 * np.arctanh(arg)
                 mc_to_v[start:end] = np.clip(mc_to_v[start:end], -self.llr_clip, self.llr_clip)
 
-            # Variable update
+            # Variable-node update: combine prior belief with all checks.
             bit_llr.fill(mu)
             np.add.at(bit_llr, self.edge_var, mc_to_v)
             np.clip(bit_llr, -self.llr_clip, self.llr_clip, out=bit_llr)

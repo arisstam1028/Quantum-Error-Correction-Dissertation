@@ -1,4 +1,15 @@
 # verify_encoder_v2.py
+# Purpose:
+#   Verify that the encoder circuit prepares the intended stabilizer code.
+#
+# Process:
+#   1. Propagate ancilla Z operators through the encoder.
+#   2. Convert the resulting Paulis to binary symplectic rows.
+#   3. Compare the generated span with the target stabilizer matrix Hs.
+#
+# Theory link:
+#   A stabilizer encoder is correct when conjugated input stabilizers
+#   generate the same GF(2) row space as the target stabilizer group.
 from __future__ import annotations
 
 from typing import List, Tuple, Literal
@@ -7,7 +18,15 @@ from qiskit.quantum_info import Clifford, Pauli
 
 
 def gf2_rank(mat: np.ndarray) -> int:
-    """Rank over GF(2) via Gaussian elimination."""
+    """
+    Compute GF(2) rank for span comparison.
+
+    Role in pipeline:
+        Checks whether two binary stabilizer row spaces have the same
+        dimension after concatenation.
+
+    Rank over GF(2) via Gaussian elimination.
+    """
     A = (mat.copy() & 1).astype(np.uint8)
     m, n = A.shape
     r = 0
@@ -36,7 +55,15 @@ def gf2_rank(mat: np.ndarray) -> int:
 
 
 def pauli_to_xz(p: Pauli, n: int) -> Tuple[np.ndarray, np.ndarray]:
-    """Return (x,z) as uint8 vectors length n."""
+    """
+    Convert a Qiskit Pauli into X and Z binary arrays.
+
+    Role in pipeline:
+        Bridges Qiskit's Pauli representation and the binary symplectic
+        matrices used by the verification test.
+
+    Returns (x,z) as uint8 vectors length n.
+    """
     z = np.array(p.z, dtype=np.uint8)
     x = np.array(p.x, dtype=np.uint8)
     if len(x) != n or len(z) != n:
@@ -45,7 +72,15 @@ def pauli_to_xz(p: Pauli, n: int) -> Tuple[np.ndarray, np.ndarray]:
 
 
 def make_Z_on_qubit(n: int, q: int) -> Pauli:
-    """Pauli Z on qubit q (using x/z boolean arrays)."""
+    """
+    Construct an input Z stabilizer on one qubit.
+
+    Role in pipeline:
+        Provides the Pauli operator whose image through the encoder is
+        tested against the target stabilizer span.
+
+    Pauli Z on qubit q using x/z boolean arrays.
+    """
     z = np.zeros(n, dtype=bool)
     x = np.zeros(n, dtype=bool)
     z[q] = True
@@ -121,6 +156,12 @@ def build_image_rows(
 
 def verify_stabilizer_span_algorithm1(Hs: List[List[int]], qc) -> None:
     """
+    Verify that the circuit's stabilizer images span Hs.
+
+    Role in pipeline:
+        Confirms that Algorithm 1 produced an encoder for the intended
+        stabilizer code, not merely a visually plausible circuit.
+
     Robust stabilizer-span check for Algorithm 1 encoder circuits.
 
     It tries 4 combinations:

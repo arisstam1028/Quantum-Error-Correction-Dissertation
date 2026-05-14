@@ -7,9 +7,7 @@ from typing import List, Sequence, Union
 from qiskit import QuantumCircuit
 
 
-# ==========================
 # Utility Functions
-# ==========================
 
 def _gf2_rank(matrix: List[List[int]]) -> int:
     """Compute rank over GF(2) using Gaussian elimination."""
@@ -53,9 +51,7 @@ def _apply_cy(qc: QuantumCircuit, ctrl: int, tgt: int):
     qc.sdg(tgt)
 
 
-# ==========================
 # Encoder Class
-# ==========================
 
 @dataclass
 class EncoderSpec:
@@ -99,9 +95,7 @@ class StabilizerEncoder:
     def build(self) -> QuantumCircuit:
         qc = QuantumCircuit(self.n, name=self.name)
 
-        # -------------------------
         # Step A: Logical X encoding
-        # -------------------------
         for i in range(self.k):
             msg = self.n - self.k + i
             xL = self.logical_X[i][:self.n]
@@ -118,9 +112,7 @@ class StabilizerEncoder:
                 elif pair == (1, 1):
                     _apply_cy(qc, msg, j)
 
-        # -------------------------
         # Step B: Stabilizer section
-        # -------------------------
         for i in range(self.r):
             ctrl = i
 
@@ -147,9 +139,7 @@ class StabilizerEncoder:
         return qc
 
 
-# ==========================
 # Printing Class
-# ==========================
 
 class HsPrinter:
 
@@ -174,9 +164,7 @@ class HsPrinter:
             print(f"{x} | {z}")
 
 
-# ==========================
 # Plotting Class
-# ==========================
 
 class CircuitPlotter:
 

@@ -1,3 +1,16 @@
+# Purpose:
+#   Sample binary symplectic errors for the five-qubit simulations.
+#
+# Process:
+#   1. Choose either the independent-BSC approximation or exact
+#      symmetric depolarizing channel.
+#   2. Return X and Z binary error components ex and ez.
+#   3. Provide the channel prior used by binary decoders.
+#
+# Theory link:
+#   I=(0,0), X=(1,0), Y=(1,1), and Z=(0,1). The BSC approximation
+#   samples X and Z components independently with probability 2p/3,
+#   while exact depolarizing samples X, Y, Z each with probability p/3.
 from dataclasses import dataclass
 from typing import Optional, Tuple
 
@@ -37,6 +50,7 @@ class DepolarizingChannel:
         if self.use_independent_bsc_approx:
             pe = 2.0 * p / 3.0
 
+            # BSC approximation treats X and Z components as independent.
             ex = (self.rng.random(n) < pe).astype(np.uint8)
             ez = (self.rng.random(n) < pe).astype(np.uint8)
 
@@ -51,6 +65,7 @@ class DepolarizingChannel:
         y_mask = (r >= 1.0 - 2.0 * p / 3.0) & (r < 1.0 - p / 3.0)
         z_mask = r >= 1.0 - p / 3.0
 
+        # Y has both X and Z components in binary symplectic form.
         ex[x_mask] = 1
         ex[y_mask] = 1
         ez[y_mask] = 1

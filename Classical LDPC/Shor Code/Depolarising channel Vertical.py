@@ -4,9 +4,7 @@ def depolarizing_right_angle_clean(save_path=None, dpi=600):
     fig, ax = plt.subplots(figsize=(10, 6))
     ax.axis("off")
 
-    # -------------------------
     # Layout
-    # -------------------------
     x_trunk = 0.0
 
     # Short arrows
@@ -25,14 +23,10 @@ def depolarizing_right_angle_clean(save_path=None, dpi=600):
     x_op = x_branch + 0.2
     x_state = x_branch + 1.0
 
-    # -------------------------
     # Font size (uniform)
-    # -------------------------
     FS = 22
 
-    # -------------------------
     # Helpers
-    # -------------------------
     def arrow(a, b, lw=2.2):
         ax.annotate(
             "",
@@ -48,9 +42,7 @@ def depolarizing_right_angle_clean(save_path=None, dpi=600):
             color="black"   # <-- force black
         )
 
-    # -------------------------
     # Root
-    # -------------------------
     ax.plot(x_trunk, y_top, "ko", markersize=8)
     ax.text(
         x_trunk, y_top + 0.45,
@@ -61,9 +53,7 @@ def depolarizing_right_angle_clean(save_path=None, dpi=600):
     # Vertical trunk (connector, not arrow)
     line((x_trunk, y_top), (x_trunk, y_Y))
 
-    # -------------------------
     # Branches
-    # -------------------------
     def branch(y, op_tex, out_tex, prob_tex):
         arrow((x_trunk, y), (x_arrow_end, y))
 
@@ -92,9 +82,7 @@ def depolarizing_right_angle_clean(save_path=None, dpi=600):
         r"$p$", fontsize=FS, ha="right", va="center"
     )
 
-    # -------------------------
     # Limits
-    # -------------------------
     ax.set_xlim(-2.0, x_state + 2.6)
     ax.set_ylim(0.0, 6.0)
 

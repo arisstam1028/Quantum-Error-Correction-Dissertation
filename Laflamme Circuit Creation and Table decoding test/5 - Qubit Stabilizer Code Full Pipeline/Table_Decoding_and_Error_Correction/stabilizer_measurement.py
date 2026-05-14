@@ -1,3 +1,15 @@
+# Purpose:
+#   Parse stabilizer generators and build syndrome-measurement circuits.
+#
+# Process:
+#   1. Validate Pauli-string or binary symplectic stabilizer input.
+#   2. Check that all stabilizer generators commute.
+#   3. Build ancilla-based circuits that measure each stabilizer.
+#
+# Theory link:
+#   Stabilizer measurement extracts an error syndrome: which stabilizer
+#   constraints are violated. It detects errors without directly
+#   measuring or destroying the logical quantum state.
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -28,6 +40,13 @@ class StabilizerParser:
 
     @staticmethod
     def from_strings(stabilizers: Sequence[str]) -> List[str]:
+        """
+        Validate and normalize Pauli-string stabilizers.
+
+        Role in pipeline:
+            Ensures that syndrome extraction is built from a commuting
+            stabilizer set.
+        """
         if not stabilizers:
             raise ValueError("stabilizers must not be empty")
 
@@ -50,6 +69,13 @@ class StabilizerParser:
 
     @staticmethod
     def from_symplectic_rows(rows: Sequence[Sequence[int]]) -> List[str]:
+        """
+        Convert binary symplectic rows [X | Z] to Pauli strings.
+
+        Role in pipeline:
+            Connects encoder output Hs to the circuit-based stabilizer
+            measurement builder.
+        """
         if not rows:
             raise ValueError("rows must not be empty")
 
@@ -87,6 +113,13 @@ class StabilizerParser:
 
     @staticmethod
     def validate_commutation(stabilizers: Sequence[str]) -> None:
+        """
+        Confirm that every pair of stabilizer generators commutes.
+
+        Role in pipeline:
+            Commutation is required so all stabilizers can be measured
+            consistently as one stabilizer code.
+        """
         for i in range(len(stabilizers)):
             for j in range(i + 1, len(stabilizers)):
                 if not StabilizerParser.pauli_strings_commute(stabilizers[i], stabilizers[j]):
@@ -165,6 +198,7 @@ class StabilizerMeasurementBuilder:
 
         for stab_index, stabilizer in enumerate(self.stabilizers):
             anc = ancilla_qubits[stab_index]
+            # Each ancilla accumulates the parity/eigenvalue of one stabilizer.
             self._append_single_stabilizer_measurement(
                 qc,
                 stabilizer=stabilizer,

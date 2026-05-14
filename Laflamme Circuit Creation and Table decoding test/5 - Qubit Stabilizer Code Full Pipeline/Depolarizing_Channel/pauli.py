@@ -1,3 +1,15 @@
+# Purpose:
+#   Sample Pauli errors and apply them to Qiskit circuits.
+#
+# Process:
+#   1. Validate target qubits and sampled Pauli patterns.
+#   2. Sample I, X, Y, or Z according to a depolarizing probability.
+#   3. Append the corresponding Pauli gates to the circuit.
+#
+# Theory link:
+#   The symmetric depolarizing channel applies I with probability 1-p
+#   and X, Y, Z each with probability p/3. In binary symplectic form,
+#   Y contains both X and Z components.
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -42,6 +54,10 @@ def sample_pauli(p: float, rng: random.Random) -> str:
         X with probability p / 3
         Y with probability p / 3
         Z with probability p / 3
+
+    Role in pipeline:
+        Implements the physical error model used before syndrome
+        extraction and decoding.
     """
     if not (0.0 <= p <= 1.0):
         raise ValueError(f"p must satisfy 0 <= p <= 1, got {p}")
@@ -66,11 +82,25 @@ def sample_error_pattern(
     p: float,
     rng: random.Random,
 ) -> List[str]:
+    """
+    Sample an independent Pauli error for each target qubit.
+
+    Role in pipeline:
+        Produces the multi-qubit error pattern applied to the encoded
+        circuit during channel simulation.
+    """
     validate_qubits(qubits)
     return [sample_pauli(p, rng) for _ in qubits]
 
 
 def apply_single_pauli(qc: QuantumCircuit, qubit: int, pauli: str) -> None:
+    """
+    Append one sampled Pauli error to a circuit.
+
+    Role in pipeline:
+        Converts an abstract sampled error into the circuit operation
+        that corrupts the encoded state.
+    """
     if pauli == "I":
         return
     if pauli == "X":

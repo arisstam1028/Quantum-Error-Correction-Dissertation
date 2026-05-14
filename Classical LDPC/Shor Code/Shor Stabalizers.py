@@ -5,9 +5,7 @@ def draw_shor_stabilizer_graph(save_path=None, dpi=600):
     fig, ax = plt.subplots(figsize=(12, 6))
     ax.axis("off")
 
-    # --------------------
     # Data qubit positions
-    # --------------------
     qubits = {
         1:(0,2), 2:(0,1), 3:(0,0),
         2.5:(1.5,2), 3.5:(1.5,1), 4.5:(1.5,0),  # spacing helper
@@ -18,9 +16,7 @@ def draw_shor_stabilizer_graph(save_path=None, dpi=600):
     # Only real qubits
     qubit_nodes = [1,2,3,4,5,6,7,8,9]
 
-    # --------------------
     # Stabilizer positions
-    # --------------------
     z_stabs = {
         "Z12": (1.5, 1.5),
         "Z23": (1.5, 0.5),
@@ -35,18 +31,14 @@ def draw_shor_stabilizer_graph(save_path=None, dpi=600):
         "X456789": (6, 3.1),
     }
 
-    # --------------------
     # Draw qubits
-    # --------------------
     for q in qubit_nodes:
         x, y = qubits[q]
         ax.scatter(x, y, s=700)
         ax.text(x, y, f"$q_{q}$", ha="center", va="center",
                 color="white", fontsize=11, weight="bold")
 
-    # --------------------
     # Draw stabilizers
-    # --------------------
     def draw_stabilizer(x, y, label, kind):
         ax.scatter(x, y, s=900, marker="s")
         ax.text(x, y, label, ha="center", va="center",
@@ -62,9 +54,7 @@ def draw_shor_stabilizer_graph(save_path=None, dpi=600):
     for k,(x,y) in x_stabs.items():
         draw_stabilizer(x,y,k,"X")
 
-    # --------------------
     # Edges
-    # --------------------
     edges = [
         ("Z12",1),("Z12",2),
         ("Z23",2),("Z23",3),

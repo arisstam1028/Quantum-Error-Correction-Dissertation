@@ -51,7 +51,6 @@ def test_depolarizing_channel(p: float, n_qubits: int = 10000, seed: int = 42) -
     print(f"X: {p / 3:.6f}")
     print(f"Y: {p / 3:.6f}")
     print(f"Z: {p / 3:.6f}")
-    print("=================================\n")
 
 
 if __name__ == "__main__":

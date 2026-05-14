@@ -6,20 +6,16 @@ import matplotlib.pyplot as plt
 from qiskit.quantum_info import Pauli, PauliList  # Qiskit symplectic Pauli support
 
 
-# --------------------------
 # GF(2) helpers
-# --------------------------
 def gf2_matmul(A, B):
     """Matrix product over GF(2)."""
     return (A @ B) % 2
 
 
-# --------------------------
 # Bicycle CSS construction
 #   HX = [C | C^T]
 #   HZ = [C^T | C]
 # This guarantees HX HZ^T = 0 (CSS commutation).
-# --------------------------
 def circulant_from_first_row(first_row):
     first_row = np.array(first_row, dtype=np.uint8) % 2
     r = len(first_row)
@@ -58,12 +54,10 @@ def generate_bicycle_css(r=18, row_weight=3, seed=7):
     return HX, HZ, ok
 
 
-# --------------------------
 # Convert (HX, HZ) rows to Qiskit Paulis
 # For CSS:
 #   X-stabilizer row h -> Pauli with x=h, z=0
 #   Z-stabilizer row h -> Pauli with x=0, z=h
-# --------------------------
 def hx_rows_to_paulis(HX):
     HX = np.array(HX, dtype=bool)
     m, n = HX.shape
@@ -85,9 +79,7 @@ def hz_rows_to_paulis(HZ):
     return PauliList(out)
 
 
-# --------------------------
 # Tanner graphs
-# --------------------------
 def build_tanner_graph(H, check_prefix="c", var_prefix="q"):
     H = np.array(H, dtype=np.uint8) % 2
     m, n = H.shape
@@ -122,9 +114,7 @@ def plot_bipartite(G, checks, vars_, title="", max_labels=60):
     plt.show()
 
 
-# --------------------------
 # Extra relevant graphs
-# --------------------------
 def build_commutation_graph(HX, HZ):
     """
     Bipartite graph: X-check nodes vs Z-check nodes.
@@ -166,9 +156,7 @@ def plot_degree_hist(H, title=""):
     plt.show()
 
 
-# --------------------------
 # Demo
-# --------------------------
 if __name__ == "__main__":
     HX, HZ, ok = generate_bicycle_css(r=18, row_weight=3, seed=7)
     n = HX.shape[1]

@@ -1,3 +1,17 @@
+"""
+Purpose:
+    Load MacKay-style CSS matrices and execute one-frame QLDPC decoding.
+
+Process:
+    Import C, Hx, and Hz; build X and Z component decoders; sample channel
+    errors; compute CSS syndromes; decode; and classify residual errors.
+
+Theory link:
+    A residual is successful when it lies in the stabilizer row space. This
+    means the correction may differ from the true error by a stabilizer
+    without causing a logical failure.
+"""
+
 from dataclasses import dataclass
 from copy import deepcopy
 import importlib
@@ -11,7 +25,7 @@ from channel.depolarizing import DepolarizingChannel
 from code_construction.code_analysis import print_bicycle_matrices, print_code_stats
 from core.helpers import GF2RowSpaceChecker
 from core.syndrome import compute_css_syndrome
-
+from decoder.bp_decoder import BinaryBPDecoder
 
 @dataclass
 class SingleRunResult:
@@ -35,6 +49,10 @@ def load_matrix_module(module_name: str) -> tuple[np.ndarray, np.ndarray, np.nda
 
     The module must define:
         C, Hx, Hz
+
+    Role in pipeline:
+        Allows fixed matrices and generated family members to share the same
+        runner without rebuilding matrices for every frame.
     """
     module = importlib.import_module(module_name)
 
@@ -73,6 +91,13 @@ class QLDPCFamilyRunner:
         self.config_template = config_template
 
     def discover_modules(self) -> list[tuple[int, str]]:
+        """
+        Discover generated family modules ordered by their m suffix.
+
+        Role in pipeline:
+            Supports scaling experiments across several bicycle-code sizes
+            while reusing the same decoder and channel configuration.
+        """
         package = importlib.import_module(self.base_module_path)
         discovered: list[tuple[int, str]] = []
         pattern = re.compile(r"^(?P<name>.+)_m(?P<m>\d+)$")
@@ -109,6 +134,9 @@ class QLDPCFamilyRunner:
         return f"m={match.group(1)}"
 
     def run_family(self) -> dict[str, list[dict]]:
+        """
+        Run the Monte Carlo sweep once for every discovered family module.
+        """
         from simulation.monte_carlo import run_monte_carlo
 
         family_results: dict[str, list[dict]] = {}
@@ -127,6 +155,9 @@ class QLDPCFamilyRunner:
 
 class QLDPCRunner:
     def __init__(self, config) -> None:
+        """
+        Prepare matrices, channel sampler, decoders, and row-space checkers.
+        """
         self.config = config
 
         self.C, self.Hx, self.Hz = load_matrix_module(config.matrix_module)
@@ -140,53 +171,49 @@ class QLDPCRunner:
             if config.print_matrices:
                 print_bicycle_matrices(self.C, self.Hx, self.Hz)
 
-        self.channel = DepolarizingChannel(seed=None)
+        self.channel = DepolarizingChannel(
+            seed=None,
+            use_independent_bsc_approx=config.use_bsc_channel,
+        )
 
-        # CSS decoding:
+        # CSS decoding direction:
         #   Z-check syndrome sZ decodes the X-part using Hz
         #   X-check syndrome sX decodes the Z-part using Hx
         if config.decoder_type == "bp":
             from decoder.bp_decoder import BinaryBPDecoder as Decoder
-
-            decoder_kwargs = {
-                "max_iters": config.max_bp_iters,
-                "epsilon": config.bp_epsilon,
-                "enable_random_perturbation": config.enable_random_perturbation,
-                "perturb_iters": config.perturb_iters,
-                "perturb_max_feedbacks": config.perturb_max_feedbacks,
-                "perturb_strength": config.perturb_strength,
-                "random_seed": config.perturb_seed,
-            }
-
         elif config.decoder_type == "svns":
             from Sequential_BP_Based_Decoding import SVNSBPDecoder as Decoder
-
-            decoder_kwargs = {
-                "max_iters": config.max_bp_iters,
-                "epsilon": config.bp_epsilon,
-            }
-
         elif config.decoder_type == "scns":
             from Sequential_BP_Based_Decoding import SCNSBPDecoder as Decoder
-
-            decoder_kwargs = {
-                "max_iters": config.max_bp_iters,
-                "epsilon": config.bp_epsilon,
-            }
-
         else:
             raise ValueError(f"Unknown decoder_type: {config.decoder_type}")
 
-        self.decoder_x = Decoder(self.Hz, **decoder_kwargs)
-        self.decoder_z = Decoder(self.Hx, **decoder_kwargs)
-
+        self.decoder_x = Decoder(
+            self.Hz,
+            max_iters=config.max_bp_iters,
+            epsilon=config.bp_epsilon,
+        )
+        self.decoder_z = Decoder(
+            self.Hx,
+            max_iters=config.max_bp_iters,
+            epsilon=config.bp_epsilon,
+        )
         self.hx_rowspace = GF2RowSpaceChecker(self.Hx)
         self.hz_rowspace = GF2RowSpaceChecker(self.Hz)
 
     def run_single_frame(self, p: float) -> SingleRunResult:
+        """
+        Simulate one physical frame and return detailed decoding data.
+
+        Role in pipeline:
+            This is the Monte Carlo inner loop: channel sample, syndrome,
+            binary component decoding, residual formation, and row-space
+            success test.
+        """
         ex_true, ez_true = self.channel.sample_error(self.n, p)
         sX, sZ = compute_css_syndrome(self.Hx, self.Hz, ex_true, ez_true)
 
+        # Each X or Z component has marginal depolarizing probability 2p/3.
         p_binary = 2.0 * p / 3.0
 
         # Decode X component from Z-check syndrome
@@ -201,6 +228,7 @@ class QLDPCRunner:
         ex_res = (ex_true ^ ex_hat).astype(np.uint8)
         ez_res = (ez_true ^ ez_hat).astype(np.uint8)
 
+        # Stabilizer-equivalent residuals are harmless logical identity.
         x_ok = self.hx_rowspace.contains(ex_res)
         z_ok = self.hz_rowspace.contains(ez_res)
         success = bool(x_ok and z_ok)

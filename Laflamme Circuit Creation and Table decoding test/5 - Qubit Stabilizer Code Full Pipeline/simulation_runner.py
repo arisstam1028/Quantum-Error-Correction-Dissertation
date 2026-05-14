@@ -1,3 +1,16 @@
+# Purpose:
+#   Run a vectorized Monte Carlo simulation of the five-qubit code.
+#
+# Process:
+#   1. Build the encoder bundle and derive stabilizer generators.
+#   2. Construct a syndrome-to-correction lookup table.
+#   3. Sample Pauli errors, compute syndromes, apply corrections, and
+#      count residual logical failures.
+#
+# Theory link:
+#   Pauli errors are represented by binary symplectic X/Z components.
+#   The syndrome identifies violated stabilizers, and table decoding
+#   chooses a correction from the measured syndrome.
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -49,6 +62,10 @@ class SimulationRunner:
         Returns:
             sx: shape (r, n)
             sz: shape (r, n)
+
+        Role in pipeline:
+            Converts the stabilizer basis into matrices used for
+            algebraic syndrome calculation.
         """
         r = len(stabilizers)
         n = len(stabilizers[0])
@@ -150,6 +167,10 @@ class SimulationRunner:
             1 -> X = (1,0)
             2 -> Y = (1,1)
             3 -> Z = (0,1)
+
+        Role in pipeline:
+            Expresses sampled Pauli errors in the binary symplectic form
+            used by syndrome calculation.
         """
         x = ((codes == 1) | (codes == 2)).astype(np.uint8)
         z = ((codes == 2) | (codes == 3)).astype(np.uint8)
@@ -253,8 +274,10 @@ class SimulationRunner:
                 syndrome_bits = cls.syndrome_bits_from_errors(ex, ez, sx, sz)
                 syndrome_indices = cls.syndrome_bits_to_indices(syndrome_bits)
 
+                # Syndrome indices select the correction predicted by table decoding.
                 correction_codes = correction_lookup[syndrome_indices]
 
+                # A trial succeeds when error and correction cancel modulo phase.
                 success_mask = cls.residual_identity_mask(error_codes, correction_codes)
                 batch_failures = int((~success_mask).sum())
 

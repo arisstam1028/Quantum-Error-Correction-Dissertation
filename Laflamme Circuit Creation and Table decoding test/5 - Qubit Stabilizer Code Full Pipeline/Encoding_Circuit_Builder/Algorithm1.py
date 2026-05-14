@@ -1,3 +1,17 @@
+# Purpose:
+#   Build a stabilizer encoder circuit from a binary symplectic
+#   stabilizer check matrix.
+#
+# Process:
+#   1. Validate the input stabilizer matrix Hs = [Hx | Hz].
+#   2. Infer n, k, and the GF(2) rank r of the X part.
+#   3. Map entries of Hs and logical X operators to controlled
+#      Pauli gates following the tutorial Algorithm 1 structure.
+#
+# Theory link:
+#   Stabilizer generators are represented in binary symplectic form.
+#   The encoder prepares the codespace by translating binary X/Z
+#   entries into controlled X, Z, or Y operations on physical qubits.
 # Algorithm1.py
 # Implementation of Algorithm 1 (encoder construction) with *native* CY/CZ gates
 # so the drawn circuit matches the paper more closely.
@@ -18,11 +32,16 @@ BinaryVec = Sequence[int]
 BinaryMat = Sequence[Sequence[int]]
 
 
-# ==========================
 # Utility Functions
-# ==========================
 
 def _validate_binary_matrix(Hs: BinaryMat) -> None:
+    """
+    Validate the stabilizer check matrix before circuit construction.
+
+    Role in pipeline:
+        Ensures the encoder receives a rectangular binary matrix in
+        symplectic form [X | Z], with two columns per physical qubit.
+    """
     if not Hs or not Hs[0]:
         raise ValueError("Hs must be a non-empty matrix.")
     row_len = len(Hs[0])
@@ -36,6 +55,12 @@ def _validate_binary_matrix(Hs: BinaryMat) -> None:
 
 
 def _validate_binary_vec(v: BinaryVec, length: int, name: str) -> None:
+    """
+    Validate a binary logical-operator vector.
+
+    Role in pipeline:
+        Ensures logical X data has the same [X | Z] length as Hs.
+    """
     if len(v) != length:
         raise ValueError(f"{name} must have length {length}, got {len(v)}.")
     if any(b not in (0, 1) for b in v):
@@ -43,7 +68,13 @@ def _validate_binary_vec(v: BinaryVec, length: int, name: str) -> None:
 
 
 def _gf2_rank(mat: List[List[int]]) -> int:
-    """Compute rank over GF(2) via Gaussian elimination."""
+    """
+    Compute rank over GF(2) via Gaussian elimination.
+
+    Role in pipeline:
+        Determines r, the number of independent X pivots used by
+        the encoder construction.
+    """
     if not mat:
         return 0
     A = [row[:] for row in mat]
@@ -91,9 +122,7 @@ def _apply_cz_native(qc: QuantumCircuit, ctrl: int, tgt: int) -> None:
     qc.append(CZGate(), [ctrl, tgt])
 
 
-# ==========================
 # Encoder Class
-# ==========================
 
 @dataclass(frozen=True)
 class EncoderSpec:
@@ -171,7 +200,13 @@ class StabilizerEncoder:
         return EncoderSpec(n=self.n, k=self.k, r=self.r, num_stabilizers=self.num_stabilizers)
 
     def _apply_pair(self, qc: QuantumCircuit, ctrl: int, tgt: int, xbit: int, zbit: int) -> None:
-        """Apply the appropriate controlled Pauli based on (x,z) pair."""
+        """
+        Apply the controlled Pauli gate represented by one binary pair.
+
+        Role in pipeline:
+            Converts an entry of Hs or logical X into a controlled gate:
+            (1,0) -> CX, (0,1) -> CZ, and (1,1) -> CY.
+        """
         pair = (xbit, zbit)
         if pair == (1, 0):
             qc.cx(ctrl, tgt)
@@ -188,6 +223,14 @@ class StabilizerEncoder:
         # else (0,0): nothing
 
     def build(self) -> QuantumCircuit:
+        """
+        Construct the encoder circuit.
+
+        Role in pipeline:
+            First couples logical input qubits according to logical X,
+            then prepares stabilizer pivot qubits and applies controlled
+            Pauli operations from each stabilizer row.
+        """
         qc = QuantumCircuit(self.n, name=self.name)
 
         # ---------- Step A: encode logical X (controlled by message/logical input qubit(s)) ----------
@@ -213,6 +256,7 @@ class StabilizerEncoder:
                 qc.s(ctrl)
 
             # Controlled operations to other qubits from stabilizer row i
+            # Each (x,z) pair chooses which Pauli is controlled by the pivot.
             for j in range(self.n):
                 if j == ctrl:
                     continue
@@ -223,9 +267,7 @@ class StabilizerEncoder:
         return qc
 
 
-# ==========================
 # Printing Class
-# ==========================
 
 class HsPrinter:
     @staticmethod
@@ -256,9 +298,7 @@ class HsPrinter:
             print(f"  {logical_label}[{i}] = {HsPrinter._format_vec(v)}")
 
 
-# ==========================
 # Plotting Class
-# ==========================
 
 class CircuitPlotter:
     @staticmethod

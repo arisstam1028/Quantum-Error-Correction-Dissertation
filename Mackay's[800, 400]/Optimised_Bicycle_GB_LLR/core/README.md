@@ -1,51 +1,57 @@
-# Core
+# core Package
 
-This section contains reusable binary, Pauli, CSS, and syndrome helpers.
+Contains fundamental utilities used throughout the simulation.
 
-## Files
+These implement the **mathematical representation of stabilizer codes**.
 
-### `css.py`
+---
 
-CSS matrix helpers.
+# Files
 
-Functions:
+### css.py
 
-- `css_commutation_check(Hx, Hz)`: returns whether `Hx Hz^T = 0 mod 2`.
-- `build_full_symplectic_check(Hx, Hz)`: builds a full binary symplectic check matrix from CSS X/Z checks.
+Contains helper functions related to CSS codes.
 
-### `helpers.py`
+Includes:
 
-GF(2) linear algebra helpers.
+- commutation checks
+- matrix structure utilities
 
-Functions/classes:
+---
 
-- `_gf2_row_echelon_with_pivots(A)`: row-reduces a binary matrix, returning echelon form, rank, and pivot columns.
-- `gf2_row_echelon(A)`: public row-echelon wrapper.
-- `gf2_rank(A)`: computes rank over GF(2).
-- `ensure_binary_matrix(A)`: validates that a matrix contains only 0/1 entries.
-- `binary_vector_to_str(v)`: formats a binary vector as a string.
-- `GF2RowSpaceChecker`: precomputes a row-space basis and tests membership efficiently.
-- `GF2RowSpaceChecker.contains(v)`: returns whether `v` lies in the row space.
-- `in_rowspace(v, H)`: one-shot row-space membership helper.
+### pauli.py
 
-### `pauli.py`
+Represents Pauli errors using binary vectors.
 
-Pauli/binary conversion.
+Pauli errors are represented as:
 
-Functions:
+X component  
+Z component
 
-- `pauli_string_to_binary(pauli)`: converts a Pauli string to `(ex, ez)`.
-- `binary_to_pauli_string(ex, ez)`: converts binary arrays back to a Pauli string.
-- `add_pauli_errors(ex1, ez1, ex2, ez2)`: XORs two Pauli errors modulo global phase.
+Example:
 
-### `syndrome.py`
+X error vector  
+Z error vector
 
-Syndrome helpers.
+This representation is standard in stabilizer code simulations.
 
-Functions:
+---
 
-- `compute_css_syndrome(Hx, Hz, ex, ez)`: returns `(sX, sZ)`.
-- `compute_full_syndrome(Hx, Hz, ex, ez)`: concatenates `sX` and `sZ`.
-- `batch_css_syndrome(Hx, Hz, ex_batch, ez_batch)`: vectorized syndrome computation.
-- `syndrome_matches(H, estimated_error, target_syndrome)`: checks a binary parity equation.
+### syndrome.py
 
+Computes stabilizer syndromes.
+
+For CSS codes:
+
+sX = Hx * eZᵀ  
+sZ = Hz * eXᵀ
+
+These syndromes are the inputs to the BP decoder.
+
+---
+
+### helpers.py
+
+Small helper utilities used throughout the framework.
+
+Includes matrix operations and formatting helpers.

@@ -1,18 +1,58 @@
+# Purpose:
+#   Demonstrates classical LDPC decoding with the sum-product algorithm
+#   on a small parity-check matrix.
+#
+# Process:
+#   1. Define a parity-check matrix, transmitted codeword, and noisy values.
+#   2. Convert received values to log-likelihood ratios.
+#   3. Run horizontal and vertical message-passing updates.
+#   4. Display syndrome, messages, and decoded output in a popup.
+#
+# Theory link:
+#   Classical LDPC BP decoding estimates a binary codeword from noisy
+#   channel evidence. Check-node updates enforce parity constraints, and
+#   variable-node updates combine channel LLRs with incoming messages.
+
 import numpy as np
 import tkinter as tk
 from tkinter.scrolledtext import ScrolledText
 
 def safe_atanh(x):
+    """
+    Compute arctanh with clipping for numerical stability.
+
+    Role in pipeline:
+        Prevents check-node products from reaching +/-1, where the
+        sum-product update would diverge.
+    """
     x = np.clip(x, -0.999999, 0.999999)
     return np.arctanh(x)
 
 def hard_decision(llr):
+    """
+    Convert LLRs to binary decisions.
+
+    Role in pipeline:
+        Produces the decoded bit estimate after message passing.
+    """
     return (llr < 0).astype(int)
 
 def compute_syndrome(H, c):
+    """
+    Compute the classical LDPC syndrome Hc over GF(2).
+
+    Role in pipeline:
+        Checks which parity constraints are violated by a hard decision.
+    """
     return H.dot(c) % 2
 
 def horizontal_step(H, Q):
+    """
+    Run the check-node update of the sum-product algorithm.
+
+    Role in pipeline:
+        Sends parity-constraint information from checks to variables.
+    """
     rows, cols = H.shape
     R = np.zeros_like(Q, dtype=float)
     for i in range(rows):
@@ -23,6 +63,13 @@ def horizontal_step(H, Q):
     return R
 
 def vertical_step(H, R, q):
+    """
+    Run the variable-node update of the sum-product algorithm.
+
+    Role in pipeline:
+        Combines channel LLRs with incoming check messages to refresh
+        variable-to-check beliefs.
+    """
     rows, cols = H.shape
     Q_new = np.zeros((rows, cols))
     for j in range(cols):
@@ -33,6 +80,13 @@ def vertical_step(H, R, q):
     return Q_new
 
 def update_llr(H, R, q):
+    """
+    Compute final posterior LLR estimates for all variables.
+
+    Role in pipeline:
+        Aggregates channel evidence and check-node messages before the
+        final hard decision.
+    """
     cols = H.shape[1]
     q_hat = np.zeros_like(q)
     for j in range(cols):
@@ -40,6 +94,13 @@ def update_llr(H, R, q):
     return q_hat
 
 def run_ldpc_spa_popup():
+    """
+    Execute the small LDPC demonstration and display all intermediate data.
+
+    Role in pipeline:
+        Shows the classical BP message-passing workflow that precedes the
+        later quantum stabilizer and QLDPC simulations.
+    """
     # Step 1: H matrix
     H = np.array([
         [1,0,1,0,1,1],

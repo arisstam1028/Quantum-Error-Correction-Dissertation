@@ -1,3 +1,15 @@
+# Purpose:
+#   Run the five-qubit table-decoding Monte Carlo simulation.
+#
+# Process:
+#   1. Sample binary Pauli errors from the configured channel.
+#   2. Compute the stabilizer syndrome algebraically.
+#   3. Apply table correction and record residual-error metrics.
+#
+# Theory link:
+#   The simulation decodes the binary error pattern, not the quantum
+#   state directly. A residual after correction is counted as failure
+#   in this small-code table-decoding experiment.
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -11,9 +23,7 @@ from Table_Decoding_and_Error_Correction.plotter import StabilizerCircuitPlotter
 from Table_Decoding_and_Error_Correction.stabilizer_measurement import StabilizerMeasurement
 
 
-# =========================
 # Binary symplectic helpers
-# =========================
 class BinarySymplectic:
     @staticmethod
     def pauli_char_to_bits(pauli: str) -> tuple[int, int]:
@@ -82,9 +92,7 @@ class BinarySymplectic:
         )
 
 
-# =========================
 # 5-qubit code
-# =========================
 @dataclass(frozen=True)
 class FiveQubitCode:
     stabilizers: Sequence[str] = (
@@ -98,9 +106,7 @@ class FiveQubitCode:
         object.__setattr__(self, "n_qubits", len(self.stabilizers[0]))
 
 
-# =========================
 # Simulation config/results
-# =========================
 @dataclass(frozen=True)
 class SimulationConfig:
     probabilities: Iterable[float]
@@ -120,9 +126,7 @@ class SimulationResults:
     average_qber: list[float]
 
 
-# =========================
 # Simulation runner
-# =========================
 class SimulationRunner:
     def __init__(self, code: FiveQubitCode | None = None):
         self.code = code or FiveQubitCode()
@@ -134,6 +138,13 @@ class SimulationRunner:
         return not np.any(ex) and not np.any(ez)
 
     def run(self, config: SimulationConfig) -> SimulationResults:
+        """
+        Execute the probability sweep for table decoding.
+
+        Role in pipeline:
+            Connects channel sampling, syndrome calculation, table
+            correction, residual formation, and QBER/FER measurement.
+        """
         channel = DepolarizingChannel(
             seed=config.seed,
             use_independent_bsc_approx=True,   # <- book-style setting
@@ -161,6 +172,7 @@ class SimulationRunner:
                 cx, cz = self.decoder.decode(syndrome)
 
                 # residual = error + correction mod 2
+                # In binary symplectic form, Pauli multiplication modulo phase is XOR.
                 rx, rz = BinarySymplectic.add_errors(ex, ez, cx, cz)
 
                 frames += 1
@@ -206,9 +218,7 @@ class SimulationRunner:
         )
 
 
-# =========================
 # Reporting
-# =========================
 class SimulationReport:
     def __init__(self, code: FiveQubitCode):
         self.code = code

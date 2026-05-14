@@ -4,9 +4,7 @@ import time
 from ldpc_H_matrix import H  # ← hard-coded PEG LDPC matrix
 
 
-# ============================================
 # Step 2: Hard decision and syndrome
-# ============================================
 
 def hard_decision(q_hat):
     return (q_hat < 0).astype(int)
@@ -16,9 +14,7 @@ def syndrome(H, c):
     return H.dot(c) % 2
 
 
-# ============================================
 # Step 3: Build neighbour lists for layered decoding
-# ============================================
 
 def build_neighbors(H):
     m, n = H.shape
@@ -33,9 +29,7 @@ def build_neighbors(H):
     return checks_to_vars, vars_to_checks
 
 
-# ============================================
 # Step 4: Layered Normalized Min-Sum decoding
-# ============================================
 
 def min_sum_decode_layered(H,
                            checks_to_vars,
@@ -118,9 +112,7 @@ def min_sum_decode_layered(H,
     return decoded, it_used, converged
 
 
-# ============================================
 # Step 5: Monte Carlo simulation (no plotting)
-# ============================================
 
 def simulate_min_sum_ber(
     ebn0_dB=None,

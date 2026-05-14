@@ -25,9 +25,7 @@ import math
 import matplotlib.pyplot as plt
 from scipy.special import erfc
 
-# -----------------------------------------------------------------------------
 # Load fixed LDPC H matrix
-# -----------------------------------------------------------------------------
 from ldpc_H_matrix import H  # must be numpy array (500, 1000)
 
 # Sanity checks (keep these!)
@@ -36,17 +34,13 @@ assert np.all(H.sum(axis=0) == 3), "Column weights are not all 3"
 assert np.all(H.sum(axis=1) == 6), "Row weights are not all 6"
 
 
-# -----------------------------------------------------------------------------
 # Helper: sign with 0 mapped to +1
-# -----------------------------------------------------------------------------
 def nzsign(x):
     """Non-zero sign: +1 for x>=0, -1 for x<0 (so sign(0)=+1)."""
     return np.where(x < 0, -1.0, 1.0)
 
 
-# -----------------------------------------------------------------------------
 # Horizontal step: Min-Sum / Normalized Min-Sum / Offset Min-Sum
-# -----------------------------------------------------------------------------
 def horizontal_step_min_sum(H, Q, mode="NMS", alpha=0.8, beta=0.15):
     """
     Vectorised horizontal step.
@@ -105,9 +99,7 @@ def horizontal_step_min_sum(H, Q, mode="NMS", alpha=0.8, beta=0.15):
     return R
 
 
-# -----------------------------------------------------------------------------
 # Vertical step
-# -----------------------------------------------------------------------------
 def vertical_step(H, R, q):
     """Q_new[i,j] = q[j] + sum_{i' in M(j)\{i}} R[i',j] = q + colsum(R) - R"""
     E = (H == 1)
@@ -122,9 +114,7 @@ def compute_q_hat(R, q):
     return q + R.sum(axis=0)
 
 
-# -----------------------------------------------------------------------------
 # Decode one frame
-# -----------------------------------------------------------------------------
 def min_sum_decode_single(H, y, sigma2, max_iter=50, mode="NMS", alpha=0.8, beta=0.15):
     """
     Returns: decoded_bits, it_used, converged_flag
@@ -146,9 +136,7 @@ def min_sum_decode_single(H, y, sigma2, max_iter=50, mode="NMS", alpha=0.8, beta
     return decoded, max_iter, False
 
 
-# -----------------------------------------------------------------------------
 # Simulation BER-only (with enforced error_limit)
-# -----------------------------------------------------------------------------
 def simulate_ldpc_ber(
     H,
     ebn0_dB_range,
@@ -255,9 +243,7 @@ def simulate_ldpc_ber(
     return ebn0_dB_range, ber, avg_iters, used_frames, bit_errors_out
 
 
-# -----------------------------------------------------------------------------
 # Entrypoint: MULTIPLE BER CURVES (FER removed)
-# -----------------------------------------------------------------------------
 if __name__ == "__main__":
     # Same Eb/N0 style as your MATLAB repetition example:
     ebn0_dB_range = np.arange(0.0, 11.0, 1.0)

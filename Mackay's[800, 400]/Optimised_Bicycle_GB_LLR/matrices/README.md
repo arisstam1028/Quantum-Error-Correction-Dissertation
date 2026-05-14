@@ -1,55 +1,77 @@
-# Matrices
+# matrices Package
 
-This section stores fixed matrix modules used by the simulation.
+This package stores **fixed parity-check matrices used in simulations**.
 
-Every simulation matrix module is expected to define:
+The matrices define the stabilizer structure of the QLDPC code.
 
-```python
-C   # base circulant matrix
-Hx  # X-check parity matrix
-Hz  # Z-check parity matrix
-```
+---
 
-## Main Files
+# Files
 
-### `mackay_800_400.py`
+### bicycle_24_12.py
 
-Main dissertation matrix. It defines a MacKay-style bicycle QLDPC code:
+Generator script.
 
-```text
-N       = 800
-K       = 400
-RANK    = 200
-SUPPORT = [10, 53, 83, 117, 128, 165, 245, 259, 262, 289, 313, 356, 378, 395, 399]
-C       = 400 x 400 circulant matrix
-Hx, Hz  = 200 x 800 matrices
-```
+Purpose:
 
-The file sets `Hx = H` and `Hz = H`. The resulting CSS commutation condition holds.
+- Generates a **bicycle QLDPC code** with parameters:
 
-### `bicycle_24.py`, `bicycle_24_12.py`
+n = 24 physical qubits  
+m = 12 circulant size
 
-Small bicycle-code matrices and generation/search helpers. `bicycle_24_12.py` includes:
+Steps:
 
-- `circulant_from_support(m, support)`: builds a circulant matrix from support positions.
-- `gf2_rank(A)`: rank over GF(2).
-- `css_commutes(Hx, Hz)`: checks CSS commutation.
-- `density(H)`: matrix density.
-- `prune_rows(H, rows_to_drop)`: removes selected rows.
-- `build_bicycle_code(support)`: builds a small bicycle code.
-- `code_summary(Hx, Hz)`: computes summary parameters.
-- `is_suitable_qldpc(Hx, Hz)`: applies suitability checks.
-- `format_matrix_py(name, Mtx)`: serializes a matrix as Python code.
-- `export_fixed_matrix_file(...)`: writes a fixed matrix module.
-- `search_for_code()`: searches support/pruning choices.
-- `print_summary(...)`: prints search results.
-- `main()`: runs the search/export process.
+1. Construct circulant matrix C
+2. Build CSS parity matrices
 
-### `gb_code_7.py`, `gb_code_15.py`, `gb_code_15_2.py`, `gb_code_15_OG.py`, `gb_code_35.py`
+Hx = [ C | Cᵀ ]
+Hz = [ C | Cᵀ ]
 
-Small generalised bicycle code modules used for testing and comparison.
+3. Check validity conditions:
 
-### `GB_bicycle_code_5_family`, `GB_bicycle_code_5_2_family`, `GB_bicycle_code_5_2_p_family`
+- CSS commutation condition  
+Hx Hzᵀ = 0
 
-Families of related matrix modules used by `QLDPCFamilyRunner`. Their filenames end in `_m<number>.py`, which is how the runner discovers them.
+- Sparsity
+- Rank estimation
+- Estimated logical qubits
 
+4. Export fixed matrices into:
+bicycle_24.py
+
+
+---
+
+### bicycle_24.py
+
+Contains **frozen matrices used in simulation**.
+
+This ensures experiments are reproducible.
+
+Example contents:
+C
+Hx
+Hz
+
+
+These matrices are imported by the simulation pipeline.
+
+---
+
+# Relation to the Paper
+
+Bicycle codes were proposed as **cyclic LDPC constructions**.
+
+Properties:
+
+- sparse
+- quasi-cyclic
+- dual-containing
+
+The matrices in this package follow the same construction but are much smaller than the large codes studied in the literature.
+
+Typical research codes use:
+
+n = 1000+
+
+Here we use small examples for simulation feasibility.

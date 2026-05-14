@@ -5,9 +5,7 @@ from typing import List, Sequence, Optional, Tuple
 import numpy as np
 
 
-# ============================================================
 #  GF(2) utilities + symplectic product
-# ============================================================
 
 class GF2:
     @staticmethod
@@ -139,9 +137,7 @@ class GF2Rank:
 
         return A_ind, kept_original_indices_sorted, rank_val
 
-# ============================================================
 #  Pauli parsing: stabilizer strings -> [X|Z] rows
-# ============================================================
 
 class PauliBinary:
     PAULI_TO_XZ = {
@@ -176,9 +172,7 @@ class PauliBinary:
         return GF2.as_u8(H)
 
 
-# ============================================================
 #  Gaussian elimination over GF(2) on X-half (row ops only)
-# ============================================================
 
 @dataclass
 class ElimResult:
@@ -224,9 +218,7 @@ class XHalfEliminator:
         return ElimResult(H=H, pivot_cols=pivots, r=len(pivots))
 
 
-# ============================================================
 #  Standard-form builder (Hs-like) by choosing a qubit permutation
-# ============================================================
 
 @dataclass
 class StandardForm:
@@ -347,9 +339,7 @@ class StandardFormBuilder:
         )
 
 
-# ============================================================
 #  Logical operators from Eq.(19)-(20)
-# ============================================================
 
 @dataclass
 class LogicalOps:
@@ -415,9 +405,7 @@ class LogicalOperatorBuilder:
         return LogicalOps(Xbars=Xbars, Zbars=Zbars, Xbars_perm=Xbars_perm, Zbars_perm=Zbars_perm)
 
 
-# ============================================================
 #  Verification + formatting
-# ============================================================
 
 class StabilizerChecks:
     @staticmethod

@@ -1,3 +1,15 @@
+# Purpose:
+#   Provide the five-qubit stabilizer data and build encoder circuits.
+#
+# Process:
+#   1. Define the standard-form stabilizer matrix Hs = [Hx | Hz].
+#   2. Define the logical X operator used for the encoded qubit.
+#   3. Build raw and simplified encoder circuits for demonstrations.
+#
+# Theory link:
+#   The stabilizer matrix and logical operator are the algebraic input
+#   to Algorithm 1. The resulting circuit prepares the five-qubit
+#   stabilizer codespace from binary symplectic data.
 from __future__ import annotations
 
 from qiskit import QuantumCircuit
@@ -12,6 +24,10 @@ def get_five_qubit_data() -> tuple[list[list[int]], list[int]]:
     """
     Return the standard-form Hs matrix and logical_X vector
     for the 5-qubit example.
+
+    Role in pipeline:
+        Supplies the binary symplectic input Hs = [Hx | Hz] and X_bar
+        used by the encoder circuit builder.
     """
     Hs = [
         [1, 0, 0, 0, 1,   1, 1, 0, 1, 1],
@@ -30,6 +46,13 @@ def build_five_qubit_encoder(
     cy_as_native: bool = True,
     cz_as_native: bool = True,
 ) -> QuantumCircuit:
+    """
+    Build the unsimplified five-qubit encoder circuit.
+
+    Role in pipeline:
+        Instantiates Algorithm 1 for the dissertation's small stabilizer
+        code example.
+    """
     Hs, logical_X = get_five_qubit_data()
 
     encoder = StabilizerEncoder(
@@ -49,6 +72,14 @@ def build_five_qubit_simplified_encoder(
     cz_as_native: bool = True,
     do_semantic_cz_prune: bool = True,
 ) -> QuantumCircuit:
+    """
+    Build and simplify the five-qubit encoder circuit.
+
+    Role in pipeline:
+        Removes gates that are redundant under the stabilizer-span
+        verification, leaving a smaller circuit with unchanged encoding
+        behaviour.
+    """
     Hs, logical_X = get_five_qubit_data()
 
     encoder = StabilizerEncoder(
@@ -74,6 +105,10 @@ def build_five_qubit_encoder_bundle(
 ):
     """
     Return all useful objects for downstream code.
+
+    Role in pipeline:
+        Returns Hs, logical X, encoder metadata, and circuits so syndrome
+        measurement and table decoding use the same stabilizer basis.
     """
     Hs, logical_X = get_five_qubit_data()
 

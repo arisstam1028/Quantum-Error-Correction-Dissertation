@@ -1,3 +1,14 @@
+# Purpose:
+#   Compute five-qubit stabilizer syndromes in binary symplectic form.
+#
+# Process:
+#   1. Convert stabilizer strings into hx and hz matrices.
+#   2. Validate sampled binary Pauli errors.
+#   3. Compute syndrome bits from symplectic products.
+#
+# Theory link:
+#   A stabilizer syndrome bit is hx_i . ez + hz_i . ex mod 2. This
+#   detects violated stabilizers without simulating measurement circuits.
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -56,6 +67,13 @@ class StabilizerMeasurement:
         object.__setattr__(self, "n_stabilizers", len(self.stabilizers))
 
     def compute_syndrome(self, ex: np.ndarray, ez: np.ndarray) -> str:
+        """
+        Compute the syndrome string for one binary Pauli error.
+
+        Role in pipeline:
+            Converts the physical error into the stabilizer violations
+            consumed by the table decoder.
+        """
         self.validate_binary_error(ex, ez, self.n_qubits)
 
         # syndrome_i = hx_i · ez + hz_i · ex mod 2

@@ -1,3 +1,16 @@
+"""
+Purpose:
+    Summarize CSS matrix dimensions, ranks, density, and weights.
+
+Process:
+    Compute GF(2) ranks and simple sparsity statistics, then print them in a
+    compact form for simulation logs.
+
+Theory link:
+    The estimate k = n - rank(Hx) - rank(Hz) is the CSS logical dimension
+    before accounting for any additional dependencies.
+"""
+
 from dataclasses import dataclass
 
 import numpy as np
@@ -23,6 +36,9 @@ class CodeStats:
 
 
 def analyze_css_code(Hx: np.ndarray, Hz: np.ndarray) -> CodeStats:
+    """
+    Return code statistics for a CSS pair.
+    """
     n = Hx.shape[1]
     mx = Hx.shape[0]
     mz = Hz.shape[0]
@@ -48,6 +64,9 @@ def analyze_css_code(Hx: np.ndarray, Hz: np.ndarray) -> CodeStats:
 
 
 def print_code_stats(Hx: np.ndarray, Hz: np.ndarray) -> None:
+    """
+    Print matrix statistics before a simulation run.
+    """
     stats = analyze_css_code(Hx, Hz)
     print("\n=== CSS Code Stats ===")
     print(f"n            = {stats.n}")
@@ -64,12 +83,18 @@ def print_code_stats(Hx: np.ndarray, Hz: np.ndarray) -> None:
 
 
 def print_matrix(name: str, M: np.ndarray) -> None:
+    """
+    Print one binary matrix row by row.
+    """
     print(f"\n{name} ({M.shape[0]} x {M.shape[1]}):")
     for row in M:
         print(" ".join(str(int(x)) for x in row))
 
 
 def print_bicycle_matrices(C: np.ndarray, Hx: np.ndarray, Hz: np.ndarray) -> None:
+    """
+    Print the circulant block and CSS check matrices.
+    """
     print("\n=== Bicycle Code Matrices ===")
     print_matrix("C", C)
     print_matrix("Hx", Hx)

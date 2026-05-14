@@ -1,27 +1,22 @@
-# Plotting
+# plotting Package
 
-This section contains Matplotlib plotting helpers for simulation output.
+Handles visualization of simulation results.
 
-## Files
+---
 
-### `plotter.py`
+# Files
 
-Functions:
+### plotter.py
 
-- `plot_fer(results, title="FER vs p")`: plots frame error rate against depolarizing probability for one result list.
-- `plot_iterations(results, title="Average iterations vs p")`: plots average decoder iterations against depolarizing probability for one result list.
-- `plot_fer_compare(all_results, title="FER Comparison")`: plots FER curves for multiple decoders or matrix-family members.
-- `plot_iterations_compare(all_results, title="Average Iterations Comparison")`: plots iteration curves for multiple decoders or matrix-family members.
+Generates FER plots.
 
-## Expected Input
+Plots:
 
-Each result row is a dictionary with:
+Frame Error Rate vs Depolarizing Probability
 
-```text
-p
-frames
-failures
-fer
-avg_iterations
-```
+Axes:
 
+x-axis → depolarizing probability p  
+y-axis → FER (log scale)
+
+These plots reproduce the standard evaluation used in coding theory papers.

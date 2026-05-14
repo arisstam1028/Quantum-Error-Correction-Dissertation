@@ -1,3 +1,16 @@
+"""
+Purpose:
+    Construct bicycle CSS parity-check matrices from circulant blocks.
+
+Process:
+    Build a sparse circulant C, form H0 from C and its transpose, optionally
+    prune rows, and use the result as both Hx and Hz.
+
+Theory link:
+    The MacKay bicycle construction is dual-containing when H H transpose is
+    zero over GF(2), allowing the same matrix to define X and Z checks.
+"""
+
 from dataclasses import dataclass
 from typing import Optional
 
@@ -28,6 +41,12 @@ def build_bicycle_code(
     prune_count_x: int = 0,
     prune_count_z: int = 0,
 ) -> BicycleCode:
+    """
+    Build one bicycle CSS code instance.
+
+    Role in pipeline:
+        Generates comparison matrices and family members used by the runner.
+    """
     if first_row_support is None and random_row_weight is None:
         raise ValueError("Provide either first_row_support or random_row_weight")
 

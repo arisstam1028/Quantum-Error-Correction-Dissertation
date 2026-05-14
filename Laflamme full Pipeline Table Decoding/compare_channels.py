@@ -1,3 +1,14 @@
+# Purpose:
+#   Compare two five-qubit table-decoding channel models.
+#
+# Process:
+#   1. Dynamically load the independent-BSC simulation project.
+#   2. Dynamically load the exact symmetric-depolarizing project.
+#   3. Run both sweeps and plot their average QBER curves.
+#
+# Theory link:
+#   The comparison shows the effect of replacing the full depolarizing
+#   channel with independent X/Z binary symmetric channels.
 from __future__ import annotations
 
 import importlib.util

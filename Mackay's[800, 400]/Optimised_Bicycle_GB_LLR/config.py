@@ -1,3 +1,16 @@
+"""
+Purpose:
+    Store the simulation controls used by the MacKay QLDPC runner.
+
+Process:
+    Keep matrix selection, decoder parameters, channel selection, stopping
+    limits, and output flags in one dataclass.
+
+Theory link:
+    The probability list is the physical error probability p. The decoder
+    receives the marginal binary prior 2p/3 inside the runner.
+"""
+
 from dataclasses import dataclass, field
 from typing import List
 
@@ -7,19 +20,12 @@ class QLDPCConfig:
     # Fixed matrix module to import at runtime
     matrix_module: str = "matrices.mackay_800_400"
 
-    # Decoder selection
-    decoder_type: str = "bp"
-
-    # Decoder: base BP
+    # Decoder
     max_bp_iters: int = 90
     bp_epsilon: float = 1e-12
 
-    # Decoder: random perturbation for BinaryBPDecoder
-    enable_random_perturbation: bool = False
-    perturb_iters: int = 40
-    perturb_max_feedbacks: int = 40
-    perturb_strength: float = 0.1
-    perturb_seed: int | None = None
+    # Channel model toggle
+    use_bsc_channel: bool = False  # False means depolarizing, True means BSC approximation
 
     # Simulation
     probabilities: List[float] = field(
@@ -40,10 +46,17 @@ class QLDPCConfig:
 
     # Output
     verbose: bool = True
-    print_matrices: bool = True
+    print_matrices: bool = False
 
 
 def build_config(matrix_module: str = "matrices.mackay_800_400") -> QLDPCConfig:
+    """
+    Build and validate a QLDPCConfig object.
+
+    Role in pipeline:
+        Ensures each probability has matching frame and failure limits before
+        the Monte Carlo loop starts.
+    """
     cfg = QLDPCConfig(matrix_module=matrix_module)
 
     if len(cfg.frames_per_p) != len(cfg.probabilities):

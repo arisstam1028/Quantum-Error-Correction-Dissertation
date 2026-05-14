@@ -4,9 +4,7 @@ import math
 import matplotlib.pyplot as plt
 from scipy.special import erfc
 
-# ---------------------------------------------------------------------
 # Load fixed LDPC parity-check matrix
-# ---------------------------------------------------------------------
 from ldpc_H_matrix import H   # shape (500, 1000)
 
 assert H.shape == (500, 1000)
@@ -16,17 +14,13 @@ assert np.all(H.sum(axis=1) == 6)
 E = (H == 1)   # edge mask (precomputed)
 
 
-# ---------------------------------------------------------------------
 # Helper
-# ---------------------------------------------------------------------
 def nzsign(x):
     """Sign with sign(0)=+1"""
     return np.where(x < 0, -1.0, 1.0)
 
 
-# ---------------------------------------------------------------------
 # Check node update (MS / NMS / OMS)
-# ---------------------------------------------------------------------
 def horizontal_step(H, Q, mode="NMS", alpha=0.8, beta=0.15):
     mags = np.where(E, np.abs(Q), np.inf)
 
@@ -55,9 +49,7 @@ def horizontal_step(H, Q, mode="NMS", alpha=0.8, beta=0.15):
     return R
 
 
-# ---------------------------------------------------------------------
 # Variable node update
-# ---------------------------------------------------------------------
 def vertical_step(R, q):
     total = R.sum(axis=0)
     Q = q[None, :] + total[None, :] - R
@@ -69,9 +61,7 @@ def compute_q_hat(R, q):
     return q + R.sum(axis=0)
 
 
-# ---------------------------------------------------------------------
 # Decode one frame
-# ---------------------------------------------------------------------
 def decode_single(y, sigma2, max_iter, mode, alpha, beta):
     q = (2.0 * y) / sigma2
     Q = np.where(E, q[None, :], 0.0)
@@ -89,9 +79,7 @@ def decode_single(y, sigma2, max_iter, mode, alpha, beta):
     return decoded, max_iter, False
 
 
-# ---------------------------------------------------------------------
 # Monte-Carlo simulation
-# ---------------------------------------------------------------------
 def simulate_ldpc(
     snr_dB_range,
     max_frames,
@@ -180,9 +168,7 @@ def simulate_ldpc(
     )
 
 
-# ---------------------------------------------------------------------
 # MAIN
-# ---------------------------------------------------------------------
 if __name__ == "__main__":
 
     snr_dB = np.arange(0, 11, 1)

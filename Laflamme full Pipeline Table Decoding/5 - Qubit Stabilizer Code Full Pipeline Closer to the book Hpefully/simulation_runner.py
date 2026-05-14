@@ -1,3 +1,18 @@
+# Purpose:
+#   Runs the five-qubit code table-decoding Monte Carlo simulation
+#   and reports logical failure and basis-dependent QBER estimates.
+#
+# Process:
+#   1. Build the five-qubit stabilizer code and its logical cosets.
+#   2. Sample depolarizing-channel Pauli errors frame by frame.
+#   3. Compute syndromes, decode with a fixed table, and classify residuals.
+#   4. Accumulate logical failure and QBER statistics for plotting.
+#
+# Theory link:
+#   Actual errors and estimated corrections are combined modulo two in
+#   binary symplectic form. Residual errors in the stabilizer group are
+#   harmless, while non-trivial logical cosets count as decoding failures.
+
 from __future__ import annotations
 
 import random
@@ -12,12 +27,17 @@ from Table_Decoding_and_Error_Correction.plotter import StabilizerCircuitPlotter
 from Table_Decoding_and_Error_Correction.stabilizer_measurement import StabilizerMeasurement
 
 
-# =========================
 # Binary symplectic helpers
-# =========================
 class BinarySymplectic:
     @staticmethod
     def pauli_char_to_bits(pauli: str) -> tuple[int, int]:
+        """
+        Convert one Pauli symbol into binary X and Z components.
+
+        Role in pipeline:
+            Establishes the binary symplectic representation shared by
+            stabilizers, physical errors, corrections, and logical cosets.
+        """
         if pauli == "I":
             return 0, 0
         if pauli == "X":
@@ -69,6 +89,13 @@ class BinarySymplectic:
         ex2: np.ndarray,
         ez2: np.ndarray,
     ) -> tuple[np.ndarray, np.ndarray]:
+        """
+        Add two Pauli errors modulo phase using GF(2) addition.
+
+        Role in pipeline:
+            Forms residual errors by combining the sampled physical error
+            with the correction returned by the decoder.
+        """
         return ((ex1 ^ ex2).astype(np.uint8), (ez1 ^ ez2).astype(np.uint8))
 
     @staticmethod
@@ -79,9 +106,7 @@ class BinarySymplectic:
         )
 
 
-# =========================
 # 5-qubit code
-# =========================
 @dataclass(frozen=True)
 class FiveQubitCode:
     stabilizers: Sequence[str] = (
@@ -142,6 +167,13 @@ class FiveQubitCode:
     def _generate_stabilizer_group(
         self,
     ) -> set[tuple[tuple[int, ...], tuple[int, ...]]]:
+        """
+        Generate the stabilizer group from the four independent generators.
+
+        Role in pipeline:
+            Creates the identity coset used to decide whether a residual
+            Pauli error is stabilizer-equivalent and therefore harmless.
+        """
         zero_ex = np.zeros(self.n_qubits, dtype=np.uint8)
         zero_ez = np.zeros(self.n_qubits, dtype=np.uint8)
 
@@ -164,6 +196,13 @@ class FiveQubitCode:
         return {BinarySymplectic.key(ex, ez) for ex, ez in group_arrays}
 
     def classify_residual(self, ex: np.ndarray, ez: np.ndarray) -> str:
+        """
+        Classify a residual error as stabilizer-equivalent or logical.
+
+        Role in pipeline:
+            Converts the residual correction-plus-error pattern into the
+            logical failure label used by the Monte Carlo statistics.
+        """
         residual_key = BinarySymplectic.key(ex, ez)
 
         if residual_key in self.identity_coset:
@@ -179,9 +218,7 @@ class FiveQubitCode:
         raise ValueError(f"Invalid residual: {residual_string}")
 
 
-# =========================
 # Simulation config/results
-# =========================
 @dataclass(frozen=True)
 class SimulationConfig:
     probabilities: Iterable[float]
@@ -202,9 +239,7 @@ class SimulationResults:
     average_qber: list[float]
 
 
-# =========================
 # Simulation runner
-# =========================
 class SimulationRunner:
     def __init__(self, code: FiveQubitCode | None = None):
         self.code = code or FiveQubitCode()
@@ -212,6 +247,13 @@ class SimulationRunner:
         self.decoder = SyndromeTableDecoder(self.measurement)
 
     def run(self, config: SimulationConfig) -> SimulationResults:
+        """
+        Execute the table-decoding Monte Carlo experiment.
+
+        Role in pipeline:
+            Repeats channel sampling, syndrome calculation, decoding, and
+            residual classification for each physical error probability.
+        """
         rng = random.Random(config.seed)
         channel = DepolarizingChannel(seed=config.seed)
 
@@ -285,9 +327,7 @@ class SimulationRunner:
         )
 
 
-# =========================
 # Reporting
-# =========================
 class SimulationReport:
     def __init__(self, code: FiveQubitCode):
         self.code = code

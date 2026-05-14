@@ -9,9 +9,7 @@ def main():
     # Run the LDPC simulation (no plotting inside)
     ebn0_dB, ber, avg_iters, ber_vs_iter, H, info = simulate_min_sum_ber()
 
-    # ===============================
     # Plot 1: BER vs Eb/N0
-    # ===============================
     ebn0_lin = 10.0 ** (ebn0_dB / 10.0)
     ber_uncoded = 0.5 * erfc(np.sqrt(ebn0_lin))
 
@@ -30,9 +28,7 @@ def main():
     plt.legend()
     plt.tight_layout()
 
-    # ===============================
     # Plot 2: BER vs iteration (first frame at each SNR)
-    # ===============================
     max_iter = ber_vs_iter.shape[1]
     it_axis = np.arange(1, max_iter + 1)
 

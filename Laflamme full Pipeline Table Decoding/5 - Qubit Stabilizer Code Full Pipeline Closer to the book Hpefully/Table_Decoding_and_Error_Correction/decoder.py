@@ -1,3 +1,17 @@
+# Purpose:
+#   Implements a syndrome table decoder for the five-qubit stabilizer
+#   code using single-qubit Pauli representatives.
+#
+# Process:
+#   1. Enumerate the identity and all weight-one X, Y, Z errors.
+#   2. Compute each error syndrome using the stabilizer checks.
+#   3. Store one fixed correction for each syndrome and apply it.
+#
+# Theory link:
+#   The five-qubit code has distance three, so single-qubit errors
+#   have distinct syndromes. Table decoding maps a measured syndrome
+#   to a Pauli correction in binary symplectic form.
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -19,6 +33,10 @@ class SyndromeTableDecoder:
         Each syndrome is mapped to ONE fixed correction.
 
         Built natively in binary symplectic form.
+
+        Role in pipeline:
+            Precomputes the table used during Monte Carlo simulation so
+            each observed syndrome can be corrected without optimization.
         """
         n_qubits = self.stabilizer_measurement.n_qubits
         lookup: dict[str, tuple[np.ndarray, np.ndarray]] = {}
@@ -43,6 +61,10 @@ class SyndromeTableDecoder:
     def decode(self, syndrome: str) -> tuple[np.ndarray, np.ndarray]:
         """
         Return fixed correction for this syndrome.
+
+        Role in pipeline:
+            Applies the table-decoding step by returning the Pauli
+            representative associated with the measured syndrome.
         """
         if syndrome in self.lookup:
             ex, ez = self.lookup[syndrome]
@@ -60,6 +82,13 @@ class SyndromeTableDecoder:
         qubit: int,
         n_qubits: int,
     ) -> tuple[np.ndarray, np.ndarray]:
+        """
+        Construct the binary symplectic vector for one physical Pauli error.
+
+        Role in pipeline:
+            Supplies the error representatives from which the lookup table
+            is built for all weight-one correctable errors.
+        """
         if pauli not in ("X", "Y", "Z"):
             raise ValueError(f"Invalid Pauli {pauli}")
 

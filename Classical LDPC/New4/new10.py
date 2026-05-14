@@ -1,11 +1,9 @@
-# ================================================================
 # LDPC: BER vs Iteration curves for MULTIPLE Eb/N0 values (same axes)
 # - Uses your fixed H from ldpc_H_matrix.py (500x1000, col_w=3, row_w=6)
 # - Normalized Min-Sum (alpha-Min-Sum)
 # - For each Eb/N0 point: run Monte Carlo frames and average BER after each iteration
 # - Early stop per Eb/N0 using: (frames_done >= min_frames) AND (final_bit_errors >= error_limit)
 # - Prints progress while running
-# ================================================================
 
 import numpy as np
 import time

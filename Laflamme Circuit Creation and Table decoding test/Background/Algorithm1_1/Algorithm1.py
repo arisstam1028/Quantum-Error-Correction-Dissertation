@@ -18,9 +18,7 @@ BinaryVec = Sequence[int]
 BinaryMat = Sequence[Sequence[int]]
 
 
-# ==========================
 # Utility Functions
-# ==========================
 
 def _validate_binary_matrix(Hs: BinaryMat) -> None:
     if not Hs or not Hs[0]:
@@ -91,9 +89,7 @@ def _apply_cz_native(qc: QuantumCircuit, ctrl: int, tgt: int) -> None:
     qc.append(CZGate(), [ctrl, tgt])
 
 
-# ==========================
 # Encoder Class
-# ==========================
 
 @dataclass(frozen=True)
 class EncoderSpec:
@@ -223,9 +219,7 @@ class StabilizerEncoder:
         return qc
 
 
-# ==========================
 # Printing Class
-# ==========================
 
 class HsPrinter:
     @staticmethod
@@ -256,9 +250,7 @@ class HsPrinter:
             print(f"  {logical_label}[{i}] = {HsPrinter._format_vec(v)}")
 
 
-# ==========================
 # Plotting Class
-# ==========================
 
 class CircuitPlotter:
     @staticmethod

@@ -1,3 +1,16 @@
+# Purpose:
+#   Builds the Tanner graph data structure used by the binary BP decoder.
+#
+# Process:
+#   1. Read non-zero entries of the parity-check matrix H.
+#   2. Build check-to-variable and variable-to-check adjacency lists.
+#   3. Store flat edge arrays for efficient message updates.
+#
+# Theory link:
+#   Belief propagation passes messages along Tanner graph edges. Check
+#   nodes enforce syndrome/parity constraints, while variable nodes
+#   represent candidate bits of the binary error pattern.
+
 from dataclasses import dataclass
 
 import numpy as np
@@ -30,6 +43,13 @@ class BPGraph:
 
 
 def build_bp_graph(H: np.ndarray) -> BPGraph:
+    """
+    Convert a binary parity-check matrix into BP graph arrays.
+
+    Role in pipeline:
+        Provides the edge ordering and adjacency information used by the
+        check-node and variable-node message updates in BP decoding.
+    """
     H = np.asarray(H, dtype=np.uint8)
     if H.ndim != 2:
         raise ValueError("H must be 2D")
