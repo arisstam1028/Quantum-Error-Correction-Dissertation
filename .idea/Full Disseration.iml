@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="PYTHON_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/Laflamme Circuit Creation and Table decoding test/5 - Qubit Stabilizer Code Full Pipeline" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Laflamme full Pipeline BP Decoding/5 - Qubit Stabilizer Code Full Pipeline QBER DepoS" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Laflamme full Pipeline Table Decoding/5 - Qubit Stabilizer Code Full Pipeline Closer to the book Hpefully" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Laflamme full Pipeline Table Decoding/5 - Qubit Stabilizer Code Full Pipeline QBER DepoS" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Mackay's[800, 400]/Optimised_Bicycle_GB_LLR" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/.venv" />
+    </content>
+    <orderEntry type="jdk" jdkName="Python 3.13 (Full Disseration)" jdkType="Python SDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>

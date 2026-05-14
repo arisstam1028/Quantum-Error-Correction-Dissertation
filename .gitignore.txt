@@ -1,0 +1,30 @@
+# Virtual environments
+.venv
+venv
+env
+
+# Python cache
+__pycache__
+.pyc
+
+# IDEs
+.idea
+.vscode
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+.log
+
+# Data  large files (optional)
+.csv
+.npy
+.npz
+
+# Jupyter
+.ipynb_checkpoints
+
+# Secrets
+.env
