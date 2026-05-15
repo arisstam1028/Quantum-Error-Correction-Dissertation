@@ -34,8 +34,8 @@ class DepolarizingChannel:
         Returns:
             ex, ez in GF(2)^n
 
-        If use_independent_bsc_approx=True:
-            X and Z sampled independently with p = 2p/3
+        If use_independent_bsc_approxTrue:
+            X and Z sampled independently with p  2p/3
 
         Else:
             Exact depolarizing:

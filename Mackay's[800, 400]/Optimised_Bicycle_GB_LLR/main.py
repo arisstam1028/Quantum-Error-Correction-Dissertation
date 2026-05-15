@@ -48,7 +48,7 @@ def run_single_channel(config, channel_mode: str) -> list[dict]:
     use_bsc_channel, label = CHANNEL_OPTIONS[channel_mode]
     config.use_bsc_channel = use_bsc_channel
 
-    print(f"\n=== Running Channel: {label} ===")
+    print(f'\n Running Channel: {label} ')
     return run_monte_carlo(config)
 
 
@@ -98,7 +98,7 @@ def main() -> None:
                 channel_config = deepcopy(config)
                 all_results[label] = run_single_channel(channel_config, channel_mode)
 
-            print("\n=== Final Results ===")
+            print('\n Final Results ')
             print(f"Matrix module used: {config.matrix_module}")
             print(f"Decoder used: {config.decoder_type}")
             print("Channel: BSC Approx and Depolarizing")
@@ -110,7 +110,7 @@ def main() -> None:
         results = run_single_channel(config, CHANNEL_MODE)
         channel_label = CHANNEL_OPTIONS[CHANNEL_MODE][1]
 
-        print("\n=== Final Results ===")
+        print('\n Final Results ')
         print(f"Matrix module used: {config.matrix_module}")
         print(f"Decoder used: {config.decoder_type}")
         print(f"Channel: {channel_label}")
@@ -125,5 +125,5 @@ if __name__ == "__main__":
     main()
     end_time = time.perf_counter()
 
-    print(f"\n=== Total Runtime ===")
+    print(f'\n Total Runtime ')
     print(f"{end_time - start_time:.2f} seconds")

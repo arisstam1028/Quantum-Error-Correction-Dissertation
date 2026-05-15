@@ -119,7 +119,7 @@ class SVNSBPDecoder:
         Matches the paper structure:
         - for each variable v in order:
             1) refresh all incoming mc->v
-            2) bitLLR_v = mu + sum incoming
+            2) bitLLR_v  mu + sum incoming
             3) update all outgoing mv->c
         """
         syndrome = np.asarray(syndrome, dtype=np.uint8)

@@ -37,9 +37,9 @@ class SweepResult:
 class SimulationRunner:
     @staticmethod
     def print_section(title: str) -> None:
-        print("\n" + "=" * 80)
+        print('\n' + '' * 80)
         print(title)
-        print("=" * 80)
+        print('' * 80)
 
     @staticmethod
     def print_symplectic_matrix(title: str, rows: list[list[int]]) -> None:
@@ -146,9 +146,9 @@ class SimulationRunner:
 
         # Produces:
         #   0 if u < t0
-        #   1 if t0 <= u < t1
-        #   2 if t1 <= u < t2
-        #   3 if u >= t2
+        #   1 if t0 < u < t1
+        #   2 if t1 < u < t2
+        #   3 if u > t2
         codes = (
             (u >= t0).astype(np.uint8)
             + (u >= t1).astype(np.uint8)
@@ -163,10 +163,10 @@ class SimulationRunner:
         Convert Pauli codes to X/Z binary representation.
 
         codes:
-            0 -> I = (0,0)
-            1 -> X = (1,0)
-            2 -> Y = (1,1)
-            3 -> Z = (0,1)
+            0 -> I  (0,0)
+            1 -> X  (1,0)
+            2 -> Y  (1,1)
+            3 -> Z  (0,1)
 
         Role in pipeline:
             Expresses sampled Pauli errors in the binary symplectic form
@@ -187,7 +187,7 @@ class SimulationRunner:
         Vectorized symplectic syndrome computation.
 
         For each error E and stabilizer S:
-            syndrome bit = ex·sz + ez·sx (mod 2)
+            syndrome bit  ex·sz + ez·sx (mod 2)
         """
         bits = ((ex @ sz.T) ^ (ez @ sx.T)) & 1
         return bits.astype(np.uint8)
@@ -208,7 +208,7 @@ class SimulationRunner:
         correction_codes: np.ndarray,
     ) -> np.ndarray:
         """
-        Check whether correction * error = identity, ignoring global phase.
+        Check whether correction * error  identity, ignoring global phase.
 
         In binary symplectic form, Pauli multiplication modulo phase is XOR
         on the (x|z) bits.
@@ -289,12 +289,7 @@ class SimulationRunner:
             failures_all.append(failures)
             logical_error_rates.append(logical_error_rate)
 
-            print(
-                f"p = {p:.3f} | "
-                f"frames used = {frames_done}/{frames_target} | "
-                f"failures = {failures} | "
-                f"logical error rate = {logical_error_rate:.8f}"
-            )
+            print(f'p  {p:.3f} | frames used  {frames_done}/{frames_target} | failures  {failures} | logical error rate  {logical_error_rate:.8f}')
 
         return SweepResult(
             probabilities=probabilities_list,
@@ -318,9 +313,9 @@ class SimulationRunner:
         k = spec.k
         r = spec.r
 
-        print(f"n = {n}")
-        print(f"k = {k}")
-        print(f"r = {r}")
+        print(f'n  {n}')
+        print(f'k  {k}')
+        print(f'r  {r}')
 
         cls.print_section("Hs MATRIX")
         cls.print_symplectic_matrix("Hs (X | Z):", Hs)
@@ -328,7 +323,7 @@ class SimulationRunner:
         cls.print_section("INITIAL STABILIZERS")
         stabilizers = StabilizerParser.from_symplectic_rows(Hs)
         for i, stab in enumerate(stabilizers, start=1):
-            print(f"M{i} = {stab}")
+            print(f'M{i}  {stab}')
 
         decoder = SyndromeTableDecoder(stabilizers)
 
@@ -355,9 +350,9 @@ class SimulationRunner:
               200,
         ]
 
-        print(f"probabilities      = {probabilities}")
-        print(f"frames_per_p       = {frames_per_p}")
-        print(f"max_failures_per_p = {max_failures_per_p}")
+        print(f'probabilities       {probabilities}')
+        print(f'frames_per_p        {frames_per_p}')
+        print(f'max_failures_per_p  {max_failures_per_p}')
 
         cls.print_section("RUNNING VECTORIZED SWEEP")
         result = cls.run_error_rate_sweep_vectorized(

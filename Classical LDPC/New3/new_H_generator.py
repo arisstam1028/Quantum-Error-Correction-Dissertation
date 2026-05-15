@@ -7,7 +7,7 @@ def build_peg_ldpc(n=1000, col_w=3, row_w=6, seed=12345, max_tries_per_edge=5000
 
     Key improvements vs your previous file:
       - True PEG-style selection using BFS distance in Tanner graph
-      - Explicit 4-cycle avoidance: never allow two variables to share >= 2 checks
+      - Explicit 4-cycle avoidance: never allow two variables to share > 2 checks
 
     Returns:
         H : (m x n) numpy array of 0/1 with exact degrees.
@@ -17,7 +17,7 @@ def build_peg_ldpc(n=1000, col_w=3, row_w=6, seed=12345, max_tries_per_edge=5000
     total_ones = n * col_w
     if total_ones % row_w != 0:
         raise ValueError("n * col_w must be divisible by row_w")
-    m = total_ones // row_w  # for (1000, col_w=3, row_w=6) -> 500
+    m = total_ones // row_w  # for (1000, col_w3, row_w6) -> 500
 
     # adjacency lists
     var_to_chk = [[] for _ in range(n)]
@@ -27,7 +27,7 @@ def build_peg_ldpc(n=1000, col_w=3, row_w=6, seed=12345, max_tries_per_edge=5000
     chk_deg = np.zeros(m, dtype=np.int32)
 
     # For fast 4-cycle checking:
-    # var_check_sets[v] = set of checks connected to v
+    # var_check_sets[v]  set of checks connected to v
     var_check_sets = [set() for _ in range(n)]
 
     # Also track for each variable v: all variables that share a check with v (1-hop via check)
@@ -43,7 +43,7 @@ def build_peg_ldpc(n=1000, col_w=3, row_w=6, seed=12345, max_tries_per_edge=5000
             if u == v:
                 continue
             # if u already shares ANY check with v, then adding (v,c) creates a 4-cycle
-            # because v -- c2 -- u already exists, and now v -- c -- u would be another.
+            # because v  c2  u already exists, and now v  c  u would be another.
             if len(var_check_sets[v].intersection(var_check_sets[u])) > 0:
                 return True
         return False
@@ -72,7 +72,7 @@ def build_peg_ldpc(n=1000, col_w=3, row_w=6, seed=12345, max_tries_per_edge=5000
                     if dist_chk[c] > d + 1:
                         dist_chk[c] = d + 1
                         q.append(("c", c))
-            else:  # typ == "c"
+            else:  # typ  "c"
                 d = dist_chk[idx]
                 for u in chk_to_var[idx]:
                     if dist_var[u] > d + 1:

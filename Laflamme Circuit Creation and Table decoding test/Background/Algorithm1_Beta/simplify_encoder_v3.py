@@ -7,7 +7,7 @@ from typing import List
 from qiskit import QuantumCircuit, transpile
 
 # Uses your proven-correct verifier convention:
-#   match iff conj=Udg_P_U and index_map=direct
+#   match iff conjUdg_P_U and index_mapdirect
 from verify_encoder_v2 import verify_stabilizer_span_algorithm1
 from verify_encoder_v2 import gf2_rank  # if you didn't export it, I'll inline below if needed
 
@@ -24,8 +24,8 @@ class SimplifySpec:
 def _stabilizer_span_matches(Hs, qc: QuantumCircuit) -> bool:
     """
     Boolean version of the successful condition from your Verifier v2:
-    - conj=Udg_P_U
-    - index_map=direct
+    - conjUdg_P_U
+    - index_mapdirect
     """
     H = (np.array(Hs, dtype=np.uint8) & 1)
     m, two_n = H.shape

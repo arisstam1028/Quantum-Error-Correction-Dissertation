@@ -1,7 +1,7 @@
 """
 ldpc_min_sum_numba.py
 Numba-accelerated Min-Sum LDPC BER simulator.
-Keeps the same Min-Sum math (sgn * min) and LLR scaling q = 2*y/sigma2.
+Keeps the same Min-Sum math (sgn * min) and LLR scaling q  2*y/sigma2.
 Requires: numba, numpy, matplotlib, scipy (for erfc)
 """
 
@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from scipy.special import erfc
 from numba import njit, prange
 
-# ---- Utility: build regular H with adjacency lists ----
+#  Utility: build regular H with adjacency lists 
 def build_regular_h_adj(n, col_w, row_w, rng=None, max_attempts=1000):
     if rng is None:
         rng = np.random
@@ -38,7 +38,7 @@ def build_regular_h_adj(n, col_w, row_w, rng=None, max_attempts=1000):
         return H.astype(np.int8), np.array([len(a) for a in checks_to_vars], dtype=np.int32), checks_to_vars, vars_to_checks
     raise RuntimeError("Failed to build H")
 
-# ---- Numba-friendly helper: convert adjacency lists to arrays with offsets ----
+#  Numba-friendly helper: convert adjacency lists to arrays with offsets 
 def adjlists_to_flat(checks_to_vars, vars_to_checks):
     # flatten checks_to_vars
     m = len(checks_to_vars)
@@ -64,10 +64,10 @@ def adjlists_to_flat(checks_to_vars, vars_to_checks):
     v_ptr[n] = idx
     return c_flat.astype(np.int32), c_ptr.astype(np.int32), v_flat.astype(np.int32), v_ptr.astype(np.int32)
 
-# ---- Numba-accelerated core functions ----
+#  Numba-accelerated core functions 
 @njit(fastmath=True)
 def horizontal_min_sum_numba(m, n, c_flat, c_ptr, Q):
-    # Q: m x n array (only entries where H=1 are meaningful; non-connected entries are 0)
+    # Q: m x n array (only entries where H1 are meaningful; non-connected entries are 0)
     R = np.zeros_like(Q)
     for i in range(m):
         start = c_ptr[i]
@@ -196,7 +196,7 @@ def decode_many_frames_numba(m, n, c_flat, c_ptr, v_flat, v_ptr, x0, sigma2, fra
         out_iters[f] = it_used
         out_conv[f] = 1 if converged else 0
 
-# ---- Simulation wrapper (uses the compiled decode_many_frames) ----
+#  Simulation wrapper (uses the compiled decode_many_frames) 
 def simulate_numba(n=100, col_w=3, row_w=6, frames_per_snr=2000, ebn0_dB_range=np.arange(0,7,1), max_iter=50):
     H, _, checks_to_vars, vars_to_checks = build_regular_h_adj(n, col_w, row_w, rng=np.random)
     c_flat, c_ptr, v_flat, v_ptr = adjlists_to_flat(checks_to_vars, vars_to_checks)
@@ -217,7 +217,7 @@ def simulate_numba(n=100, col_w=3, row_w=6, frames_per_snr=2000, ebn0_dB_range=n
         bit_errors = out_decoded.sum()  # since transmitted all zero
         ber = bit_errors / (frames * n)
         avg_it = out_iters.mean()
-        print(f"Eb/N0={eb:.1f} dB BER={ber:.3e} avg_iter={avg_it:.2f} time={t1-t0:.2f}s")
+        print(f'Eb/N0{eb:.1f} dB BER{ber:.3e} avg_iter{avg_it:.2f} time{t1 - t0:.2f}s')
     # plotting omitted for brevity
 
 # Example quick test (small frames)

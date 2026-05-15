@@ -18,7 +18,7 @@ from stabilizer_config import get_active_stabilizers
 
 # GLOBAL MODES
 
-simulate = True
+simulate = False
 test_syndrome_table = False
 
 # 🔑 THIS is the important switch
@@ -46,9 +46,9 @@ def count_errors(error: str) -> int:
 
 
 def print_section(title: str) -> None:
-    print("\n" + "=" * 80)
+    print('\n' + '' * 80)
     print(title)
-    print("=" * 80)
+    print('' * 80)
 
 
 def print_symplectic_matrix(title: str, rows: list[list[int]]) -> None:
@@ -81,9 +81,9 @@ def run_single_iteration_mode() -> None:
     k = spec.k
     r = spec.r
 
-    print(f"n = {n}")
-    print(f"k = {k}")
-    print(f"r = {r}")
+    print(f'n  {n}')
+    print(f'k  {k}')
+    print(f'r  {r}')
 
     print_section("Hs MATRIX")
     print_symplectic_matrix("Hs (X | Z):", Hs)
@@ -95,7 +95,7 @@ def run_single_iteration_mode() -> None:
     )
 
     for i, stab in enumerate(stabilizers, start=1):
-        print(f"M{i} = {stab}")
+        print(f'M{i}  {stab}')
 
     print_section("BUILD SYNDROME MEASUREMENT + DECODER")
 

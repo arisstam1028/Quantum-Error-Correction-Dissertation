@@ -129,7 +129,7 @@ def build_image_rows(
     Also supports direct vs reversed qubit indexing mapping.
     """
     cliff = Clifford(qc)
-    cliff_inv = cliff.adjoint()  # for Clifford, adjoint == inverse
+    cliff_inv = cliff.adjoint()  # for Clifford, adjoint  inverse
 
     n = qc.num_qubits
     rows: List[np.ndarray] = []
@@ -141,7 +141,7 @@ def build_image_rows(
         if conj == "U_P_Udg":
             # want: U P U†
             # Qiskit’s evolve() convention can be tricky; so we explicitly do:
-            # P' = P.evolve(Clifford(U))  OR P.evolve(Clifford(U)^{-1})
+            # P'  P.evolve(Clifford(U))  OR P.evolve(Clifford(U)^{-1})
             # We will test both conventions by using conj variants at a higher level.
             P2 = P.evolve(cliff)  # candidate for U P U†
         else:
@@ -173,12 +173,12 @@ def verify_stabilizer_span_algorithm1(Hs: List[List[int]], qc) -> None:
     m, two_n = H.shape
     n = two_n // 2
     k = n - m
-    num_ancillas = n - k  # = m for standard stabilizer check matrix
+    num_ancillas = n - k  #  m for standard stabilizer check matrix
 
     target_rank = gf2_rank(H)
 
-    print(f"\n[Verifier v2] n={n}, k={k}, m={m} (ancillas={num_ancillas})")
-    print(f"rank(rowspace(Hs)) = {target_rank}")
+    print(f'\n[Verifier v2] n{n}, k{k}, m{m} (ancillas{num_ancillas})')
+    print(f'rank(rowspace(Hs))  {target_rank}')
 
     best = None
 
@@ -196,11 +196,7 @@ def verify_stabilizer_span_algorithm1(Hs: List[List[int]], qc) -> None:
 
             ok = (enc_rank == target_rank) and (stacked_rank == target_rank)
 
-            print(
-                f"  - conj={conj:8s}, index={index_map:8s} | "
-                f"rank(images)={enc_rank}, rank(stacked)={stacked_rank}  "
-                f"{'✅ MATCH' if ok else '❌'}"
-            )
+            print(f"  - conj{conj:8s}, index{index_map:8s} | rank(images){enc_rank}, rank(stacked){stacked_rank}  {('✅ MATCH' if ok else '❌')}")
 
             if ok:
                 best = (conj, index_map)
@@ -212,4 +208,4 @@ def verify_stabilizer_span_algorithm1(Hs: List[List[int]], qc) -> None:
         print("  2) Hs is not in the exact standard form assumed by Algorithm 1 (I_r in X-part), or")
         print("  3) The verification still needs adjustment to your specific qubit placement convention.")
     else:
-        print(f"\nResult: ✅ Stabilizer span matches Hs using conj={best[0]} and index_map={best[1]}.")
+        print(f'\nResult: ✅ Stabilizer span matches Hs using conj{best[0]} and index_map{best[1]}.')

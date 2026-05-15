@@ -1,12 +1,12 @@
 """
 LDPC Min-Sum Monte Carlo BER simulation (Python)
 
-- Builds a regular (column weight = 3, row weight = 6) sparse parity-check matrix H
-  for n = 100 variable nodes -> m = n*3/6 = 50 check nodes.
+- Builds a regular (column weight  3, row weight  6) sparse parity-check matrix H
+  for n  100 variable nodes -> m  n*3/6  50 check nodes.
 - Transmits all-zero codeword over AWGN.
 - Performs Min-Sum decoding with nested-loop implementation.
 - Repeats for multiple Eb/N0 points and counts bit errors to estimate BER.
-- Stops early if the decoder converges (syndrome == 0).
+- Stops early if the decoder converges (syndrome  0).
 - Limits max iterations (default 50) and records iteration usage.
 
 Author: (adapted for your lab workflow)
@@ -22,8 +22,8 @@ from scipy.special import erfc
 def build_regular_h(n, col_w, row_w, max_attempts=1000, rng=None):
     """
     Build a binary m x n parity-check matrix H with:
-      - each column has weight = col_w
-      - each row has weight = row_w
+      - each column has weight  col_w
+      - each row has weight  row_w
     Returns H (numpy array) and m (number of rows).
     Uses configuration-model pairing of stubs; retries if duplicates appear.
     """
@@ -74,12 +74,12 @@ def build_regular_h(n, col_w, row_w, max_attempts=1000, rng=None):
 
 
 def hard_decision_from_llr(q_hat):
-    """Return decoded bits 0/1 from LLR vector q_hat (0 if q_hat >= 0, 1 otherwise)."""
+    """Return decoded bits 0/1 from LLR vector q_hat (0 if q_hat > 0, 1 otherwise)."""
     return (q_hat < 0).astype(int)
 
 
 def syndrome(H, v):
-    """Compute binary syndrome vector s = H * v^T (mod 2)."""
+    """Compute binary syndrome vector s  H * v^T (mod 2)."""
     return (H.dot(v) % 2)
 
 
@@ -87,15 +87,15 @@ def horizontal_step_min_sum(H, Q):
     """
     Min-Sum horizontal step (nested-loop explicit).
     H: m x n parity-check matrix (0/1)
-    Q: m x n matrix of variable-to-check messages (only entries where H==1 are used)
-    Returns R: m x n check-to-variable messages (only H==1 entries set)
+    Q: m x n matrix of variable-to-check messages (only entries where H1 are used)
+    Returns R: m x n check-to-variable messages (only H1 entries set)
     """
     m, n = H.shape
     R = np.zeros_like(Q)
     for i in range(m):  # for each check node
         for j in range(n):  # for each variable node
             if H[i, j] == 1:
-                # gather all other connected Q[i, jj] where jj != j
+                # gather all other connected Q[i, jj] where jj ! j
                 others = []
                 for jj in range(n):
                     if jj != j and H[i, jj] == 1:
@@ -117,7 +117,7 @@ def horizontal_step_min_sum(H, Q):
 def vertical_step(H, R, q):
     """
     Vertical step: compute Q_new (variable-to-check messages).
-    Q_new[i,j] = q[j] + sum_{i' in M_j \ i} R[i', j]
+    Q_new[i,j]  q[j] + sum_{i' in M_j \ i} R[i', j]
     """
     m, n = H.shape
     Q_new = np.zeros((m, n))
@@ -134,7 +134,7 @@ def vertical_step(H, R, q):
 
 def compute_q_hat(H, R, q):
     """
-    Final LLR update: q_hat[j] = q[j] + sum_{i in M_j} R[i, j]
+    Final LLR update: q_hat[j]  q[j] + sum_{i in M_j} R[i, j]
     Uses nested loops for clarity.
     """
     m, n = H.shape
@@ -158,7 +158,7 @@ def min_sum_decode_single(H, y, sigma2, max_iter=50):
     """
 
     m, n = H.shape
-    # Channel LLRs (probabilistic): q_j = 2*y_j / sigma^2
+    # Channel LLRs (probabilistic): q_j  2*y_j / sigma^2
     q = (2.0 * y) / sigma2
 
     # Initialize Q: variable-to-check messages
@@ -254,7 +254,7 @@ def simulate_min_sum_ber(n=100,
         total_bits = frames_per_snr * n
 
         if verbose:
-            print(f"\nEb/N0 = {ebn0_db:.2f} dB, sigma^2={sigma2:.5e}, frames={frames_per_snr}")
+            print(f'\nEb/N0  {ebn0_db:.2f} dB, sigma^2{sigma2:.5e}, frames{frames_per_snr}')
 
         for f in range(frames_per_snr):
             # Generate noise and received y
@@ -276,14 +276,14 @@ def simulate_min_sum_ber(n=100,
 
             # Progress feedback occasionally
             if verbose and (f + 1) % (max(1, frames_per_snr // 10)) == 0:
-                print(f"  frame {f+1}/{frames_per_snr}  current BER estimate = {bit_errors / ((f+1)*n):.3e}")
+                print(f'  frame {f + 1}/{frames_per_snr}  current BER estimate  {bit_errors / ((f + 1) * n):.3e}')
 
         ber[idx] = bit_errors / float(total_bits)
         avg_iters[idx] = float(total_iters) / frames_per_snr
 
         if verbose:
             elapsed = time.time() - start_time
-            print(f"-> Eb/N0 {ebn0_db:.2f} dB: BER = {ber[idx]:.3e}, avg iters = {avg_iters[idx]:.2f}, elapsed={elapsed:.1f}s")
+            print(f'-> Eb/N0 {ebn0_db:.2f} dB: BER  {ber[idx]:.3e}, avg iters  {avg_iters[idx]:.2f}, elapsed{elapsed:.1f}s')
 
     # Plot BER curve (uncoded vs coded approximation)
     plt.figure(figsize=(8, 5))

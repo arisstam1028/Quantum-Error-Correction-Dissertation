@@ -164,7 +164,7 @@ class QLDPCRunner:
         self.n = self.Hx.shape[1]
 
         if config.verbose:
-            print("\n=== Loaded Matrix Module ===")
+            print('\n Loaded Matrix Module ')
             print(config.matrix_module)
             print_code_stats(self.Hx, self.Hz)
 

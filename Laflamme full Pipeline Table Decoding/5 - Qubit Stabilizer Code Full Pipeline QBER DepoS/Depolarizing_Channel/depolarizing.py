@@ -8,7 +8,7 @@
 #   3. Provide the channel prior used by binary decoders.
 #
 # Theory link:
-#   I=(0,0), X=(1,0), Y=(1,1), and Z=(0,1). The BSC approximation
+#   I(0,0), X(1,0), Y(1,1), and Z(0,1). The BSC approximation
 #   samples X and Z components independently with probability 2p/3,
 #   while exact depolarizing samples X, Y, Z each with probability p/3.
 from dataclasses import dataclass
@@ -30,17 +30,17 @@ class DepolarizingChannel:
         Returns:
             ex, ez in GF(2)^n
 
-        If use_independent_bsc_approx=True, use the model described in the book:
-            px = pz = 2p/3
+        If use_independent_bsc_approxTrue, use the model described in the book:
+            px  pz  2p/3
         and sample X-part and Z-part independently.
 
         This induces:
-            pI = 1 - 4p/3 + 4p^2/9
-            pX = 2p/3 - 4p^2/9
-            pY = 4p^2/9
-            pZ = 2p/3 - 4p^2/9
+            pI  1 - 4p/3 + 4p^2/9
+            pX  2p/3 - 4p^2/9
+            pY  4p^2/9
+            pZ  2p/3 - 4p^2/9
 
-        If use_independent_bsc_approx=False, use exact symmetric depolarizing:
+        If use_independent_bsc_approxFalse, use exact symmetric depolarizing:
             I with 1-p
             X,Y,Z each with p/3
         """
@@ -88,7 +88,7 @@ class DepolarizingChannel:
     def channel_binary_prior(p: float) -> Tuple[float, float]:
         """
         Binary prior used in the independent-BSC approximation:
-            pe = 2p/3
+            pe  2p/3
         """
         p1 = 2.0 * p / 3.0
         p0 = 1.0 - p1

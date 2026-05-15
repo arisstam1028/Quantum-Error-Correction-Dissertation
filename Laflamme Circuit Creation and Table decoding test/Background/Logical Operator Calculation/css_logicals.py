@@ -23,7 +23,7 @@ class GF2:
     @staticmethod
     def symplectic_product(p: np.ndarray, q: np.ndarray, n: int) -> int:
         """
-        p=(x|z), q=(x'|z') -> x·z' + z·x' (mod 2)
+        p(x|z), q(x'|z') -> x·z' + z·x' (mod 2)
         """
         p = GF2.as_u8(p).ravel()
         q = GF2.as_u8(q).ravel()
@@ -118,7 +118,7 @@ class GF2LinAlg:
     def nullspace_basis(A: np.ndarray) -> np.ndarray:
         """
         Return a basis for Null(A) over GF(2).
-        Output is a matrix N whose rows are basis vectors v with A v^T = 0.
+        Output is a matrix N whose rows are basis vectors v with A v^T  0.
         """
         A = GF2.as_u8(A)
         m, n = A.shape
@@ -149,7 +149,7 @@ class GF2LinAlg:
     def is_in_rowspace(v: np.ndarray, B: np.ndarray) -> bool:
         """
         Test if v is in RowSpace(B) over GF(2).
-        Equivalent: rank(B) == rank([B; v])
+        Equivalent: rank(B)  rank([B; v])
         """
         v = GF2.as_u8(v).reshape(1, -1)
         B = GF2.as_u8(B)
@@ -251,8 +251,8 @@ class CSSLogicalOperatorCalculator:
         CSSLogicalOperatorCalculator.validate_css(Hx, Hz)
 
         # Candidate bases
-        NX = GF2LinAlg.nullspace_basis(Hz)  # x-vectors s.t. Hz x^T = 0
-        NZ = GF2LinAlg.nullspace_basis(Hx)  # z-vectors s.t. Hx z^T = 0
+        NX = GF2LinAlg.nullspace_basis(Hz)  # x-vectors s.t. Hz x^T  0
+        NZ = GF2LinAlg.nullspace_basis(Hx)  # z-vectors s.t. Hx z^T  0
 
         # Stabilizer rowspaces for quotienting
         Rx = Hx  # rowspace(Hx)
@@ -262,7 +262,7 @@ class CSSLogicalOperatorCalculator:
         Xcand = [v for v in NX if not GF2LinAlg.is_in_rowspace(v, Rx)]
         Zcand = [v for v in NZ if not GF2LinAlg.is_in_rowspace(v, Rz)]
 
-        # Infer k from stabilizer ranks (for CSS): k = n - rank(Hx) - rank(Hz)
+        # Infer k from stabilizer ranks (for CSS): k  n - rank(Hx) - rank(Hz)
         k = n - GF2Rank.rank(Hx) - GF2Rank.rank(Hz)
         if k < 0:
             raise ValueError(f"Inferred k is negative (n={n}). Check matrices.")
@@ -280,7 +280,7 @@ class CSSLogicalOperatorCalculator:
         Xlog = np.vstack(Xcand[:k])  # k x n
         Zlog = np.vstack(Zcand[:k])  # k x n
 
-        # Pair them so X_i · Z_j = delta_ij
+        # Pair them so X_i · Z_j  delta_ij
         M = (Xlog @ Zlog.T) & 1  # k x k
         Minv = GF2LinAlg.invert_kxk(M)
         Zlog_paired = (Minv @ Zlog) & 1

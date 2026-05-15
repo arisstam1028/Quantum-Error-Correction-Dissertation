@@ -16,7 +16,7 @@ def demo_with_stabilizers():
 
     # k inferred automatically
     StabilizerPipeline.run(stabilizers=stabilizers, k=None)
-    print("=== Demo: input stabilizers ===")
+    print(' Demo: input stabilizers ')
 
 
 def demo_with_Hq():
@@ -29,7 +29,7 @@ def demo_with_Hq():
 
     # k inferred automatically
     StabilizerPipeline.run(Hq=Hq, k=None)
-    print("\n=== Demo: input Hq ===")
+    print('\n Demo: input Hq ')
 
 def demo_css_steane():
     Hx = np.array([
@@ -38,24 +38,24 @@ def demo_css_steane():
         [0, 1, 1, 1, 0, 0, 1],
     ], dtype=np.uint8)
 
-    Hz = Hx.copy()  # <-- FIX: define Hz
+    Hz = Hx.copy()  # < FIX: define Hz
 
     n = Hx.shape[1]
 
-    # Build Hq = [Hx | 0 ; 0 | Hz]
+    # Build Hq  [Hx | 0 ; 0 | Hz]
     Hq = np.zeros((Hx.shape[0] + Hz.shape[0], 2 * n), dtype=np.uint8)
     Hq[:Hx.shape[0], :n] = Hx
     Hq[Hx.shape[0]:, n:] = Hz
 
     StabilizerPipeline.run(Hq=Hq)
 
-    # --- NEW: compute CSS logical operators robustly (kernel/quotient method) ---
+    #  NEW: compute CSS logical operators robustly (kernel/quotient method) 
     # This avoids relying on the Eq.(19)-(20) "Hs standard form" construction,
     # which is not guaranteed by the current StandardFormBuilder for all CSS codes.
-    # res = CSSLogicalOperatorCalculator.compute_from_Hq_css(Hq, reduce_dependent=True)
+    # res  CSSLogicalOperatorCalculator.compute_from_Hq_css(Hq, reduce_dependentTrue)
     #
-    # print("\n=== CSS logical operators (computed from Hx/Hz) ===")
-    # print(f"n = {res.n}, k = {res.k}")
+    # print("\n CSS logical operators (computed from Hx/Hz) ")
+    # print(f"n  {res.n}, k  {res.k}")
     # print("Hx:")
     # for row in res.Hx:
     #     print(" ", "".join(str(int(b)) for b in row.tolist()))
@@ -64,13 +64,13 @@ def demo_css_steane():
     #     print(" ", "".join(str(int(b)) for b in row.tolist()))
     #
     # for i in range(res.k):
-    #     x = res.Xbars[i][:res.n]
-    #     z = res.Xbars[i][res.n:]
-    #     print(f"  Xbar[{i}] = {''.join(str(int(b)) for b in x)} | {''.join(str(int(b)) for b in z)}")
+    #     x  res.Xbars[i][:res.n]
+    #     z  res.Xbars[i][res.n:]
+    #     print(f"  Xbar[{i}]  {''.join(str(int(b)) for b in x)} | {''.join(str(int(b)) for b in z)}")
     #
-    #     x = res.Zbars[i][:res.n]
-    #     z = res.Zbars[i][res.n:]
-    #     print(f"  Zbar[{i}] = {''.join(str(int(b)) for b in x)} | {''.join(str(int(b)) for b in z)}")
+    #     x  res.Zbars[i][:res.n]
+    #     z  res.Zbars[i][res.n:]
+    #     print(f"  Zbar[{i}]  {''.join(str(int(b)) for b in x)} | {''.join(str(int(b)) for b in z)}")
 
 def main():
     #demo_with_stabilizers()

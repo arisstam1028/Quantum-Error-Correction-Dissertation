@@ -3,7 +3,7 @@
 #   stabilizer check matrix.
 #
 # Process:
-#   1. Validate the input stabilizer matrix Hs = [Hx | Hz].
+#   1. Validate the input stabilizer matrix Hs  [Hx | Hz].
 #   2. Infer n, k, and the GF(2) rank r of the X part.
 #   3. Map entries of Hs and logical X operators to controlled
 #      Pauli gates following the tutorial Algorithm 1 structure.
@@ -117,7 +117,7 @@ def _apply_cy_native(qc: QuantumCircuit, ctrl: int, tgt: int) -> None:
 def _apply_cz_native(qc: QuantumCircuit, ctrl: int, tgt: int) -> None:
     """
     Use Qiskit's CZ gate object (still draws as the symmetric ●—● CZ).
-    If you want a custom label, you can set CZGate(label="CZ") etc.
+    If you want a custom label, you can set CZGate(label"CZ") etc.
     """
     qc.append(CZGate(), [ctrl, tgt])
 
@@ -134,12 +134,12 @@ class EncoderSpec:
 
 class StabilizerEncoder:
     """
-    Encoder builder from standard-form stabilizer matrix Hs = [X | Z].
+    Encoder builder from standard-form stabilizer matrix Hs  [X | Z].
 
     Automatic inference:
-      n = (#cols)/2
-      k = n - (#rows)         (assuming Hs has (n-k) rows)
-      r = rank over GF(2) of X-part (first n columns)
+      n  (#cols)/2
+      k  n - (#rows)         (assuming Hs has (n-k) rows)
+      r  rank over GF(2) of X-part (first n columns)
 
     Gate representation:
       - CY uses native CYGate (draws as CY)
@@ -233,7 +233,7 @@ class StabilizerEncoder:
         """
         qc = QuantumCircuit(self.n, name=self.name)
 
-        # ---------- Step A: encode logical X (controlled by message/logical input qubit(s)) ----------
+        #  Step A: encode logical X (controlled by message/logical input qubit(s)) 
         # logical qubits assumed at indices (n-k ... n-1)
         for i in range(self.k):
             msg = self.n - self.k + i
@@ -245,11 +245,11 @@ class StabilizerEncoder:
                     continue
                 self._apply_pair(qc, msg, j, xL[j], zL[j])
 
-        # ---------- Step B: stabilizer loop (Algorithm 1 uses i=1..r) ----------
+        #  Step B: stabilizer loop (Algorithm 1 uses i1..r) 
         for i in range(self.r):
             ctrl = i
 
-            # Prepare pivot/control qubit: H, and if z_diag=1 then S after H
+            # Prepare pivot/control qubit: H, and if z_diag1 then S after H
             z_diag = self.Hs[i][self.n + i]
             qc.h(ctrl)
             if z_diag == 1:
@@ -283,19 +283,19 @@ class HsPrinter:
     @staticmethod
     def print_all(encoder: StabilizerEncoder, logical_label: str = "logical_X") -> None:
         spec = encoder.spec
-        print(f"n = {spec.n}, k = {spec.k}, r = {spec.r}, #stabilizers = {spec.num_stabilizers}\n")
+        print(f'n  {spec.n}, k  {spec.k}, r  {spec.r}, #stabilizers  {spec.num_stabilizers}\n')
 
         print("Hs (X | Z):")
         for row in encoder.Hs:
             print(HsPrinter._format_vec(row))
 
         if spec.k == 0:
-            print("\n(No logical qubits: k=0.)")
+            print('\n(No logical qubits: k0.)')
             return
 
         print(f"\n{logical_label} vector(s):")
         for i, v in enumerate(encoder.logical_Xs):
-            print(f"  {logical_label}[{i}] = {HsPrinter._format_vec(v)}")
+            print(f'  {logical_label}[{i}]  {HsPrinter._format_vec(v)}')
 
 
 # Plotting Class

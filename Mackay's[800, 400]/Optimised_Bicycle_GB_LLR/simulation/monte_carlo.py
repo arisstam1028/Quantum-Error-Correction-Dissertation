@@ -35,7 +35,7 @@ def run_monte_carlo(config) -> list[dict]:
         total_iters = 0
 
         if config.verbose:
-            print(f"\n--- Running p = {p:.4f} ---")
+            print(f'\n Running p  {p:.4f} ')
 
         while total_frames < target_frames and failures < max_failures:
             single = runner.run_single_frame(p)
@@ -58,9 +58,6 @@ def run_monte_carlo(config) -> list[dict]:
         results.append(row)
 
         if config.verbose:
-            print(
-                f"p={p:.4f} | frames={total_frames} | failures={failures} | "
-                f"FER={fer:.6e} | avg_iter={avg_iterations:.3f}"
-            )
+            print(f'p{p:.4f} | frames{total_frames} | failures{failures} | FER{fer:.6e} | avg_iter{avg_iterations:.3f}')
 
     return results

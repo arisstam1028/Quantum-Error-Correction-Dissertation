@@ -19,8 +19,8 @@ import numpy as np
 def compute_css_syndrome(Hx: np.ndarray, Hz: np.ndarray, ex: np.ndarray, ez: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """
     For CSS codes:
-        sX = Hx * ez^T  (X-checks detect Z-part)
-        sZ = Hz * ex^T  (Z-checks detect X-part)
+        sX  Hx * ez^T  (X-checks detect Z-part)
+        sZ  Hz * ex^T  (Z-checks detect X-part)
 
     Role in pipeline:
         Produces the two syndrome vectors decoded separately by the X and Z

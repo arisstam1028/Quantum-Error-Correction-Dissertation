@@ -22,7 +22,7 @@ from .decoder_result import DecoderResult
 
 def _prefix_suffix_products(values: np.ndarray) -> np.ndarray:
     """
-    For values[0..d-1], return out[k] = product of all values except values[k].
+    For values[0..d-1], return out[k]  product of all values except values[k].
 
     Role in pipeline:
         Supports check-node updates by efficiently excluding the edge that

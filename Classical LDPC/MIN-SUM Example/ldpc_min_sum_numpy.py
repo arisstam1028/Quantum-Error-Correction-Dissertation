@@ -57,7 +57,7 @@ def min_sum_decode_numpy(H, checks_to_vars, vars_to_checks, y, sigma2, max_iter=
             mags = np.abs(vals)
             min_all = np.min(mags)
             # For each outgoing edge j_index, we need min over all except j_index; we can compute using:
-            # min_except = minimum of (prefix_min, suffix_min) trick for speed
+            # min_except  minimum of (prefix_min, suffix_min) trick for speed
             prefix = np.minimum.accumulate(mags)
             suffix = np.minimum.accumulate(mags[::-1])[::-1]
             min_except = np.empty_like(mags)
@@ -90,7 +90,7 @@ def min_sum_decode_numpy(H, checks_to_vars, vars_to_checks, y, sigma2, max_iter=
         for i in range(m):
             neighbors = checks_to_vars[i]
             for idx, j in enumerate(neighbors):
-                # Q[i][idx] = q[j] + sum_{i' in M_j \ i} R[i', j]
+                # Q[i][idx]  q[j] + sum_{i' in M_j \ i} R[i', j]
                 other_checks = vars_to_checks[j]
                 # gather R values for variable j from other checks
                 vals = []
@@ -124,7 +124,7 @@ def simulate_numpy(n=100, col_w=3, row_w=6, ebn0_dB_range=np.arange(0,7,1), fram
             bit_errors += np.sum(decoded != 0)
             total_iters += it_used
         t1 = time.time()
-        print(f"Eb/N0={eb:.1f} dB BER={bit_errors/(frames*n):.3e} avg_it={total_iters/frames:.2f} time={t1-t0:.2f}s")
+        print(f'Eb/N0{eb:.1f} dB BER{bit_errors / (frames * n):.3e} avg_it{total_iters / frames:.2f} time{t1 - t0:.2f}s')
     # plotting omitted
 
 if __name__ == "__main__":

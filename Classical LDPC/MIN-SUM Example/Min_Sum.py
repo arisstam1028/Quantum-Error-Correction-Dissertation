@@ -10,14 +10,14 @@ def hard_decision(llr):
 
 
 def compute_syndrome(H, c):
-    """Compute the syndrome vector s = H * c mod 2"""
+    """Compute the syndrome vector s  H * c mod 2"""
     return H.dot(c) % 2
 
 
 def horizontal_step_min_sum(H, Q):
     """
     Min-Sum Horizontal Step (check-to-variable messages)
-    R[i,j] = product of signs of other connected Q * minimum magnitude
+    R[i,j]  product of signs of other connected Q * minimum magnitude
     """
     rows, cols = H.shape
     R = np.zeros_like(Q)
@@ -41,7 +41,7 @@ def horizontal_step_min_sum(H, Q):
 def vertical_step(H, R, q):
     """
     Vertical step: update variable-to-check messages Q_new
-    Q_ij = q_j + sum of other R_i'j
+    Q_ij  q_j + sum of other R_i'j
     """
     rows, cols = H.shape
     Q_new = np.zeros((rows, cols))
@@ -59,7 +59,7 @@ def vertical_step(H, R, q):
 def update_llr(H, R, q):
     """
     Compute final LLRs q_hat for all variable nodes
-    q_hat_j = q_j + sum of all connected R_ij
+    q_hat_j  q_j + sum of all connected R_ij
     """
     rows, cols = H.shape
     q_hat = np.zeros_like(q)
@@ -100,8 +100,8 @@ def run_ldpc_min_sum(iterations=2, use_random_noise=False):
     errors = np.sum(c_hat != c)
     syndrome = compute_syndrome(H, c_hat)
 
-    # Initial LLRs (Min-Sum initialization: q_j = 2*y/sigma^2)
-    #q = (2 * y) / sigma2
+    # Initial LLRs (Min-Sum initialization: q_j  2*y/sigma^2)
+    #q  (2 * y) / sigma2
     # For some reason when I initialised q as is depicted in the example all the values of R were halfed
     q = y.copy()
     Q = H * q  # initial variable-to-check messages

@@ -29,8 +29,8 @@ def random_sparse_first_row(r, weight, seed=None):
 def generate_commuting_css_bicycle(r=18, a_row_weight=3, seed=7):
     """
     Guaranteed-commuting CSS construction:
-      HX = [I | A]
-      HZ = [A^T | I]
+      HX  [I | A]
+      HZ  [A^T | I]
     where A is sparse (here: circulant from a sparse first row).
     """
     random.seed(seed)
@@ -181,7 +181,7 @@ def plot_degree_hist(H, title=""):
 def build_anticommutation_graph(HX, HZ):
     """
     Bipartite graph: X-checks vs Z-checks.
-    Edge means anticommute (overlap parity = 1).
+    Edge means anticommute (overlap parity  1).
     For a valid CSS code: should have 0 edges.
     """
     HX = np.array(HX, dtype=np.uint8) % 2
@@ -231,7 +231,7 @@ def plot_all_graphs_in_one_window(HX, HZ):
 
     fig, axes = plt.subplots(2, 2, figsize=(18, 14))
 
-    # ---- HX Tanner ----
+    #  HX Tanner 
     posX = {}
     for i, c in enumerate(cx):
         posX[c] = (0, -i)
@@ -242,7 +242,7 @@ def plot_all_graphs_in_one_window(HX, HZ):
     axes[0, 0].set_title("Tanner Graph H_X")
     axes[0, 0].axis("off")
 
-    # ---- HZ Tanner ----
+    #  HZ Tanner 
     posZ = {}
     for i, c in enumerate(cz):
         posZ[c] = (0, -i)
@@ -253,12 +253,12 @@ def plot_all_graphs_in_one_window(HX, HZ):
     axes[0, 1].set_title("Tanner Graph H_Z")
     axes[0, 1].axis("off")
 
-    # ---- HX degree histogram ----
+    #  HX degree histogram 
     col_deg_X = HX.sum(axis=0)
     axes[1, 0].hist(col_deg_X, bins=np.arange(col_deg_X.max()+2)-0.5)
     axes[1, 0].set_title("H_X Variable Degrees")
 
-    # ---- HZ degree histogram ----
+    #  HZ degree histogram 
     col_deg_Z = HZ.sum(axis=0)
     axes[1, 1].hist(col_deg_Z, bins=np.arange(col_deg_Z.max()+2)-0.5)
     axes[1, 1].set_title("H_Z Variable Degrees")
@@ -269,6 +269,6 @@ def plot_all_graphs_in_one_window(HX, HZ):
 if __name__ == "__main__":
     HX, HZ, ok, A = generate_commuting_css_bicycle(r=18, a_row_weight=3, seed=7)
     print("HX shape:", HX.shape, "HZ shape:", HZ.shape)
-    print("CSS commutation HX*HZ^T == 0 ?", ok)
+    print('CSS commutation HX*HZ^T  0 ?', ok)
 
     plot_all_graphs_in_one_window(HX, HZ)

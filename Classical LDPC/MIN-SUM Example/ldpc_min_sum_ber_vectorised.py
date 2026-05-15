@@ -2,12 +2,12 @@
 Optimized LDPC Min-Sum Monte Carlo BER simulation (vectorised, fast)
 
 Key ideas used for speed:
- - Use adjacency mask E = (H == 1) so we only compute on actual edges.
+ - Use adjacency mask E  (H  1) so we only compute on actual edges.
  - Compute check-node outputs (horizontal step) with vectorised row-wise
    operations: first-min, second-min and total sign product. This
    avoids Python loops per edge.
  - Compute variable-node messages (vertical step) using matrix-sums:
-     Q_new = q + sum_over_checks(R) - R
+     Q_new  q + sum_over_checks(R) - R
    which yields the "sum excluding i" for every (i,j) in one vectorised op.
  - Compute final LLRs by summing R over checks per variable (axis sum).
  - Keep H builder mostly the same but efficient; adjacency lists are not necessary
@@ -45,7 +45,7 @@ def build_regular_h(n, col_w, row_w, max_attempts=2000, rng=None):
 
         pairs = np.vstack((row_stubs, col_stubs)).T    # shape (total_ones, 2)
 
-        # --- FIX: safe duplicate detection ---
+        #  FIX: safe duplicate detection 
         if len({tuple(r) for r in pairs}) != pairs.shape[0]:
             continue  # collision → retry
 
@@ -66,19 +66,19 @@ def horizontal_step_min_sum(H, Q):
     Vectorised Min-Sum horizontal step.
     Inputs:
       H : (m x n) binary parity-check matrix
-      Q : (m x n) variable-to-check messages (only meaningful where H==1)
+      Q : (m x n) variable-to-check messages (only meaningful where H1)
     Returns:
-      R : (m x n) check-to-variable messages (only nonzero where H==1)
+      R : (m x n) check-to-variable messages (only nonzero where H1)
     NOTES / MATH:
       For check node i and variable node j in N(i):
-        R[i,j] = prod_{j' in N(i)\{j}} sign(Q[i,j']) * min_{j' in N(i)\{j}} |Q[i,j']|
+        R[i,j]  prod_{j' in N(i)\{j}} sign(Q[i,j']) * min_{j' in N(i)\{j}} |Q[i,j']|
       We compute per-row:
         - first minimum (min1) and index pos1
         - second minimum (min2) to handle the "exclude self" case
         - total sign product over the row (total_sign)
-      Then R_sign(i,j) = total_sign(i) * sign(Q[i,j])  (because for ±1, 1/sign=sign)
-      R_mag(i,j)  = min2(i) if j==pos1(i) else min1(i)
-      Finally: R = R_sign * R_mag for all edges.
+      Then R_sign(i,j)  total_sign(i) * sign(Q[i,j])  (because for ±1, 1/signsign)
+      R_mag(i,j)   min2(i) if jpos1(i) else min1(i)
+      Finally: R  R_sign * R_mag for all edges.
     """
 
     # Edge mask: True where edges exist
@@ -87,7 +87,7 @@ def horizontal_step_min_sum(H, Q):
     # Degrees per check node (rows)
     degs = E.sum(axis=1)                       # shape (m,)
 
-    # If a check node degree <= 1, its outputs are all zeros; handle later.
+    # If a check node degree < 1, its outputs are all zeros; handle later.
     m, n = H.shape
 
     # Safe mag array: set non-edges to +inf so they never affect minima
@@ -110,8 +110,8 @@ def horizontal_step_min_sum(H, Q):
 
     # Compute sign of each outgoing message (prod of others' signs)
     # For ±1 elements the inverse equals itself, so:
-    # prod_except = total_sign / sign_ij  -> equals total_sign * sign_ij
-    # using multiplication avoids division by zero issues (we kept non-edges=1)
+    # prod_except  total_sign / sign_ij  -> equals total_sign * sign_ij
+    # using multiplication avoids division by zero issues (we kept non-edges1)
     R_sign = total_sign[:, None] * np.where(E, np.sign(Q), 1.0)  # (m, n)
 
     # Determine where each column is the first-min for its row.
@@ -121,7 +121,7 @@ def horizontal_step_min_sum(H, Q):
     # R magnitude: min2 for the first-min positions, otherwise min1
     R_mag = np.where(is_first_min, min2[:, None], min1[:, None])  # (m,n)
 
-    # For rows with deg <= 1, set magnitudes to 0 (no meaningful check message)
+    # For rows with deg < 1, set magnitudes to 0 (no meaningful check message)
     low_deg_rows = (degs <= 1)
     if np.any(low_deg_rows):
         R_mag[low_deg_rows, :] = 0.0
@@ -140,14 +140,14 @@ def vertical_step(H, R, q):
     Vectorised vertical step.
     Inputs:
       H : (m x n) binary matrix
-      R : (m x n) check-to-variable messages (nonzero where H==1)
+      R : (m x n) check-to-variable messages (nonzero where H1)
       q : (n,) channel LLRs
     Output:
-      Q_new : (m x n) variable-to-check messages (only meaningful where H==1)
+      Q_new : (m x n) variable-to-check messages (only meaningful where H1)
     MATH TRICK:
-      Q_new[i,j] = q[j] + sum_{i' in M(j) \ {i}} R[i', j]
-      Let total_R_col[j] = sum_{i' in M(j)} R[i', j]
-      Then Q_new[i,j] = q[j] + total_R_col[j] - R[i,j]
+      Q_new[i,j]  q[j] + sum_{i' in M(j) \ {i}} R[i', j]
+      Let total_R_col[j]  sum_{i' in M(j)} R[i', j]
+      Then Q_new[i,j]  q[j] + total_R_col[j] - R[i,j]
       This computes the "sum excluding i" for all edges in one vectorised op.
     """
 
@@ -164,8 +164,8 @@ def vertical_step(H, R, q):
 def compute_q_hat(H, R, q):
     """
     Compute final LLRs:
-      q_hat[j] = q[j] + sum_{i in M(j)} R[i, j]
-    Vectorised by summing R along axis=0.
+      q_hat[j]  q[j] + sum_{i in M(j)} R[i, j]
+    Vectorised by summing R along axis0.
     """
     q_hat = q + R.sum(axis=0)
     return q_hat
@@ -183,7 +183,7 @@ def min_sum_decode_single(H, y, sigma2, max_iter=50):
     q = (2.0 * y) / sigma2          # (n,)
 
     # Initialize Q (variable-to-check): replicate q on each connected check
-    Q = np.where(H, q[None, :], 0.0)   # broadcast q into shape (m,n) but zero where H==0
+    Q = np.where(H, q[None, :], 0.0)   # broadcast q into shape (m,n) but zero where H0
 
     R_first = None
     converged = False
@@ -255,7 +255,7 @@ def simulate_min_sum_ber(n=100,
         total_bits = frames_per_snr * n
 
         if verbose:
-            print(f"\nEb/N0 = {ebn0_db:.2f} dB, sigma^2={sigma2:.5e}, frames={frames_per_snr}")
+            print(f'\nEb/N0  {ebn0_db:.2f} dB, sigma^2{sigma2:.5e}, frames{frames_per_snr}')
 
         # Run frames
         for f in range(frames_per_snr):
@@ -269,14 +269,14 @@ def simulate_min_sum_ber(n=100,
 
             # occasional progress
             if verbose and (f + 1) % (max(1, frames_per_snr // 10)) == 0:
-                print(f"  frame {f+1}/{frames_per_snr}  current BER estimate = {bit_errors / ((f+1)*n):.3e}")
+                print(f'  frame {f + 1}/{frames_per_snr}  current BER estimate  {bit_errors / ((f + 1) * n):.3e}')
 
         ber[idx] = bit_errors / float(total_bits)
         avg_iters[idx] = float(total_iters) / frames_per_snr
 
         if verbose:
             elapsed = time.time() - start_time
-            print(f"-> Eb/N0 {ebn0_db:.2f} dB: BER = {ber[idx]:.3e}, avg iters = {avg_iters[idx]:.2f}, elapsed={elapsed:.1f}s")
+            print(f'-> Eb/N0 {ebn0_db:.2f} dB: BER  {ber[idx]:.3e}, avg iters  {avg_iters[idx]:.2f}, elapsed{elapsed:.1f}s')
 
     # Plot
     plt.figure(figsize=(8, 5))
@@ -344,7 +344,7 @@ def _self_test_small():
 
     # Compare
     err = np.max(np.abs(R_loop - R_vec))
-    print("Self-test: max abs difference between loop R and vector R =", err)
+    print('Self-test: max abs difference between loop R and vector R ', err)
     assert err < 1e-12, "Vectorised horizontal_step does not match loop reference!"
 
     print("Self-test passed.")

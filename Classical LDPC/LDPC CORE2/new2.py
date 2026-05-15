@@ -9,11 +9,11 @@ Updates included (per your requests):
  - Fixes SyntaxWarning by using raw docstrings where backslashes appear.
  - Fixes Min-Sum sign edge-case: treats sign(0) as +1.
  - Adds α normalization in the check-node update:
-       R = α * (sign product) * min(|Q|)
-   Typical α for (3,6) LDPC is ~0.75..0.9. Start with α=0.8.
+       R  α * (sign product) * min(|Q|)
+   Typical α for (3,6) LDPC is ~0.75..0.9. Start with α0.8.
 
 Requirements:
- - ldpc_H_matrix.py must define H (numpy array) of shape (500, 1000) with col weight=3 and row weight=6.
+ - ldpc_H_matrix.py must define H (numpy array) of shape (500, 1000) with col weight3 and row weight6.
 """
 
 import numpy as np
@@ -33,7 +33,7 @@ assert np.all(H.sum(axis=1) == 6), "Row weights are not all 6"
 
 # Helper: sign with 0 mapped to +1 (prevents sign-product collapsing to 0)
 def nzsign(x):
-    """Non-zero sign: returns +1 for x>=0, -1 for x<0 (so sign(0)=+1)."""
+    """Non-zero sign: returns +1 for x>0, -1 for x<0 (so sign(0)+1)."""
     return np.where(x < 0, -1.0, 1.0)
 
 
@@ -43,9 +43,9 @@ def horizontal_step_min_sum(H, Q, alpha=0.8):
     Vectorised Normalized Min-Sum (α-Min-Sum) horizontal step.
 
     For check node i and variable node j in N(i):
-      R[i,j] = α * prod_{j' in N(i)\{j}} sign(Q[i,j']) * min_{j' in N(i)\{j}} |Q[i,j']|
+      R[i,j]  α * prod_{j' in N(i)\{j}} sign(Q[i,j']) * min_{j' in N(i)\{j}} |Q[i,j']|
 
-    alpha (0<alpha<=1) scales magnitudes to compensate Min-Sum overestimation.
+    alpha (0<alpha<1) scales magnitudes to compensate Min-Sum overestimation.
     """
 
     E = (H == 1)
@@ -75,13 +75,13 @@ def horizontal_step_min_sum(H, Q, alpha=0.8):
     is_first_min = (np.arange(n)[None, :] == pos1[:, None]) & E
     R_mag = np.where(is_first_min, min2[:, None], min1[:, None])
 
-    # Rows with deg <= 1: no meaningful outgoing messages
+    # Rows with deg < 1: no meaningful outgoing messages
     low_deg_rows = (degs <= 1)
     if np.any(low_deg_rows):
         R_mag[low_deg_rows, :] = 0.0
         R_sign[low_deg_rows, :] = 0.0
 
-    # ---- α normalization (key change) ----
+    #  α normalization (key change) 
     R = R_sign * (alpha * R_mag)
     R[~E] = 0.0
     return R
@@ -92,8 +92,8 @@ def vertical_step(H, R, q):
     r"""
     Vectorised vertical step.
 
-    Q_new[i,j] = q[j] + sum_{i' in M(j) \ {i}} R[i', j]
-              = q[j] + (sum over column j) - R[i,j]
+    Q_new[i,j]  q[j] + sum_{i' in M(j) \ {i}} R[i', j]
+               q[j] + (sum over column j) - R[i,j]
     """
 
     E = (H == 1)
@@ -105,7 +105,7 @@ def vertical_step(H, R, q):
 
 # Vectorised final LLR computation
 def compute_q_hat(R, q):
-    """q_hat[j] = q[j] + sum_i R[i,j]"""
+    """q_hat[j]  q[j] + sum_i R[i,j]"""
     return q + R.sum(axis=0)
 
 
@@ -181,7 +181,7 @@ def simulate_min_sum_ber(H,
         total_bits = frames_this * n
 
         if verbose:
-            print(f"\nEb/N0 = {ebn0_db:.2f} dB, sigma^2={sigma2:.5e}, frames={frames_this}, alpha={alpha}")
+            print(f'\nEb/N0  {ebn0_db:.2f} dB, sigma^2{sigma2:.5e}, frames{frames_this}, alpha{alpha}')
 
         for f in range(frames_this):
             noise = sigma * rng.randn(n)
@@ -195,14 +195,14 @@ def simulate_min_sum_ber(H,
             total_iters += it_used
 
             if verbose and (f + 1) % max(1, frames_this // 10) == 0:
-                print(f"  frame {f+1}/{frames_this}  current BER estimate = {bit_errors / ((f+1)*n):.3e}")
+                print(f'  frame {f + 1}/{frames_this}  current BER estimate  {bit_errors / ((f + 1) * n):.3e}')
 
         ber[idx] = bit_errors / float(total_bits)
         avg_iters[idx] = float(total_iters) / frames_this
 
         if verbose:
             elapsed = time.time() - start_time
-            print(f"-> Eb/N0 {ebn0_db:.2f} dB: BER = {ber[idx]:.3e}, avg iters = {avg_iters[idx]:.2f}, elapsed={elapsed:.1f}s")
+            print(f'-> Eb/N0 {ebn0_db:.2f} dB: BER  {ber[idx]:.3e}, avg iters  {avg_iters[idx]:.2f}, elapsed{elapsed:.1f}s')
 
     # Plot BER curve
     plt.figure(figsize=(8, 5))

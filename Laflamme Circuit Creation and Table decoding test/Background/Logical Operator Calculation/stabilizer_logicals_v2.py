@@ -23,7 +23,7 @@ class GF2:
 
     @staticmethod
     def symplectic_inner(u: np.ndarray, v: np.ndarray, n: int) -> int:
-        """⟨u,v⟩ = u_X·v_Z + u_Z·v_X (mod 2)"""
+        """⟨u,v⟩  u_X·v_Z + u_Z·v_X (mod 2)"""
         u = GF2.as_u8(u).reshape(-1)
         v = GF2.as_u8(v).reshape(-1)
         ux, uz = u[:n], u[n:]
@@ -320,7 +320,7 @@ class StandardFormBuilder:
     def _force_bottom_Zmid_identity(H: np.ndarray, n: int, r: int, mid: int) -> tuple[Optional[np.ndarray], bool]:
         """
         Using ONLY row operations among the bottom rows (rows r..m-1),
-        try to transform Z[bottom, g2] into an identity I_mid, where g2 = r..r+mid-1.
+        try to transform Z[bottom, g2] into an identity I_mid, where g2  r..r+mid-1.
         Returns: (H_new or None, success)
         """
         if mid == 0:
@@ -389,7 +389,7 @@ class StandardFormBuilder:
             return [[]]
         rem = list(remaining)
 
-        # small-k brute force (Steane: k=1)
+        # small-k brute force (Steane: k1)
         if k <= 2 and len(rem) <= 32:
             return [list(c) for c in itertools.combinations(rem, k)]
 
@@ -496,7 +496,7 @@ class LogicalOperatorBuilder:
         U2 = GF2.as_u8(E.T)                 # k x mid
         U3 = np.eye(k, dtype=np.uint8)      # k x k
 
-        # V1 = E^T C1^T + C2^T  (transpose on C1 is important)
+        # V1  E^T C1^T + C2^T  (transpose on C1 is important)
         C1T = GF2.as_u8(C1.T)               # mid x r
         term = GF2.as_u8(U2 @ C1T)          # k x r (int matmul then mod2)
         V1 = GF2.add(term, GF2.as_u8(C2.T)) # k x r
@@ -594,8 +594,8 @@ class Pretty:
             xb = logops.Xbars[i]
             zb = logops.Zbars[i]
             print(f"logical qubit {i}:")
-            print(f"  Xbar[{i}] = {Pretty.bits_to_str(xb[:n])} | {Pretty.bits_to_str(xb[n:])}")
-            print(f"  Zbar[{i}] = {Pretty.bits_to_str(zb[:n])} | {Pretty.bits_to_str(zb[n:])}")
+            print(f'  Xbar[{i}]  {Pretty.bits_to_str(xb[:n])} | {Pretty.bits_to_str(xb[n:])}')
+            print(f'  Zbar[{i}]  {Pretty.bits_to_str(zb[:n])} | {Pretty.bits_to_str(zb[n:])}')
 
 
 #  Pipeline
@@ -617,7 +617,7 @@ class StabilizerPipeline:
         if (stabilizers is None) == (Hq is None):
             raise ValueError("Provide exactly one of: stabilizers OR Hq.")
 
-        # ---------- build / accept Hq ----------
+        #  build / accept Hq 
         if stabilizers is not None:
             Pretty.print_stabilizers(stabilizers)
             Hq_in = PauliBinary.stabilizers_to_Hq(stabilizers)
@@ -634,7 +634,7 @@ class StabilizerPipeline:
 
         print()
 
-        # ---------- reduce dependent rows (optional but recommended) ----------
+        #  reduce dependent rows (optional but recommended) 
         if reduce_dependent:
             Hq_used, kept_rows, rank_val = GF2Rank.independent_rows(Hq_in)
             if Hq_used.shape[0] != Hq_in.shape[0]:
@@ -647,41 +647,41 @@ class StabilizerPipeline:
             rank_val = GF2Rank.rank(Hq_used)
             kept_rows = list(range(Hq_used.shape[0]))
 
-        # ---------- infer k if not provided ----------
+        #  infer k if not provided 
         if k is None:
             k_used = n_used - rank_val
             if k_used < 0:
                 raise ValueError(f"Inferred k is negative: n={n_used}, rank={rank_val}. Check Hq.")
-            print(f"Inferred rank(Hq) = {rank_val}")
-            print(f"Inferred k = n - rank = {n_used} - {rank_val} = {k_used}")
+            print(f'Inferred rank(Hq)  {rank_val}')
+            print(f'Inferred k  n - rank  {n_used} - {rank_val}  {k_used}')
         else:
             k_used = int(k)
-            print(f"Using provided k = {k_used}")
-            print(f"Computed rank(Hq) = {rank_val} (for reference)")
+            print(f'Using provided k  {k_used}')
+            print(f'Computed rank(Hq)  {rank_val} (for reference)')
 
         print()
 
-        # ---------- print Hq ----------
+        #  print Hq 
         Pretty.print_matrix_XZ(Hq_used, title="Hq (independent rows)" if reduce_dependent else "Hq")
         print()
 
-        # ---------- build Hs-like form ----------
+        #  build Hs-like form 
         sf = StandardFormBuilder.build(Hq_used, n=n_used, k=k_used, logical_qubits=logical_qubits)
 
-        print(f"Computed r = {sf.r}")
-        print(f"Computed mid = n-k-r = {sf.mid}")
+        print(f'Computed r  {sf.r}')
+        print(f'Computed mid  n-k-r  {sf.mid}')
         print(f"Qubit permutation (new -> old) used to form Hs: {sf.perm_q}")
         print()
 
         Pretty.print_matrix_XZ(sf.Hs, title="Hs (permuted qubit order)")
         print()
 
-        # ---------- compute logicals ----------
+        #  compute logicals 
         logops = LogicalOperatorBuilder.compute(sf)
         Pretty.print_logicals(logops, n_used)
         print()
 
-        # ---------- checks ----------
+        #  checks 
         for i in range(k_used):
             okX = StabilizerChecks.commutes_with_all(Hq_used, logops.Xbars[i], n_used)
             okZ = StabilizerChecks.commutes_with_all(Hq_used, logops.Zbars[i], n_used)

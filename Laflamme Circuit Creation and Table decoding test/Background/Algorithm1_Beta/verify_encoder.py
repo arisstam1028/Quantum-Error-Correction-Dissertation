@@ -52,7 +52,7 @@ def evolve_xz_by_circuit_Z_ancillas(qc, n: int, num_ancillas: int) -> np.ndarray
         z[i] = 1
         p = Pauli((z.astype(bool), x.astype(bool)))
 
-        p2 = p.evolve(cliff)  # p2 = U p U^dagger
+        p2 = p.evolve(cliff)  # p2  U p U^dagger
         x2, z2 = pauli_to_xz(p2, n)
         rows.append(np.concatenate([x2, z2], axis=0))
     return np.array(rows, dtype=np.uint8) % 2
@@ -62,9 +62,9 @@ def verify_stabilizer_span(Hs: List[List[int]], qc) -> None:
     m, two_n = H.shape
     n = two_n // 2
     k = n - m
-    num_ancillas = n - k  # = m
+    num_ancillas = n - k  #  m
 
-    # Target stabilizer row space = row space of Hs over GF(2)
+    # Target stabilizer row space  row space of Hs over GF(2)
     target_rank = gf2_rank(H)
 
     # Encoded ancilla-Z images
@@ -75,10 +75,10 @@ def verify_stabilizer_span(Hs: List[List[int]], qc) -> None:
     stacked = np.vstack([H, enc]) % 2
     stacked_rank = gf2_rank(stacked)
 
-    print(f"n={n}, k={k}, m={m}")
-    print(f"rank(rowspace(Hs)) = {target_rank}")
-    print(f"rank(rowspace(U Z_anc U†)) = {enc_rank}")
-    print(f"rank(rowspace(combined)) = {stacked_rank}")
+    print(f'n{n}, k{k}, m{m}')
+    print(f'rank(rowspace(Hs))  {target_rank}')
+    print(f'rank(rowspace(U Z_anc U†))  {enc_rank}')
+    print(f'rank(rowspace(combined))  {stacked_rank}')
 
     if target_rank != enc_rank or stacked_rank != target_rank:
         print("❌ Not the same stabilizer span (or not enough independent generators).")

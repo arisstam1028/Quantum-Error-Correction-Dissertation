@@ -68,9 +68,9 @@ def run_syndrome_table_test():
 
     tests = list(EXPECTED_SYNDROMES.keys())
 
-    print("=" * 80)
+    print('' * 80)
     print("PAPER SYNDROME TABLE TEST")
-    print("=" * 80)
+    print('' * 80)
 
     passed_all = True
 

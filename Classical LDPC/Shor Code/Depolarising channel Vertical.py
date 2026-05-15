@@ -39,7 +39,7 @@ def depolarizing_right_angle_clean(save_path=None, dpi=600):
             [a[0], b[0]],
             [a[1], b[1]],
             lw=lw,
-            color="black"   # <-- force black
+            color="black"   # < force black
         )
 
     # Root

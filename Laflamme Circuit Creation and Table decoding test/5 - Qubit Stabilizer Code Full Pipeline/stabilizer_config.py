@@ -27,10 +27,10 @@ def get_active_stabilizers(use_paper_stabilizers: bool = False) -> list[str]:
     """
     Returns the stabilizer basis to use for syndrome measurement / decoder.
 
-    use_paper_stabilizers = False:
+    use_paper_stabilizers  False:
         Use current Hs-derived basis (existing behavior)
 
-    use_paper_stabilizers = True:
+    use_paper_stabilizers  True:
         Use the paper's original 5-qubit cyclic stabilizers
     """
     if use_paper_stabilizers:

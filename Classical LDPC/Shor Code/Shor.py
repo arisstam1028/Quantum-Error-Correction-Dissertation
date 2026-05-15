@@ -8,7 +8,7 @@ from qiskit.visualization import circuit_drawer
 def shor_encode(alpha=1.0, beta=0.0):
     """
     Shor (9,1) quantum code encoder.
-    Encodes |psi> = alpha|0> + beta|1> into 9 physical qubits.
+    Encodes |psi>  alpha|0> + beta|1> into 9 physical qubits.
     """
 
     # Normalize input state
@@ -17,10 +17,10 @@ def shor_encode(alpha=1.0, beta=0.0):
 
     qc = QuantumCircuit(9, name="Shor (9,1) Encoder")
 
-    # --- Logical input state ---
+    #  Logical input state 
     qc.initialize([alpha, beta], 0)
 
-    # --- Phase-flip protection (3-block repetition in Hadamard basis) ---
+    #  Phase-flip protection (3-block repetition in Hadamard basis) 
     qc.h(0)
     qc.cx(0, 3)
     qc.cx(0, 6)
@@ -28,7 +28,7 @@ def shor_encode(alpha=1.0, beta=0.0):
     qc.h(3)
     qc.h(6)
 
-    # --- Bit-flip protection (within each block) ---
+    #  Bit-flip protection (within each block) 
     # Block 1: qubits 0,1,2
     qc.cx(0, 1)
     qc.cx(0, 2)
@@ -48,7 +48,7 @@ def shor_encode(alpha=1.0, beta=0.0):
 
 if __name__ == "__main__":
 
-    # Encode |+> = (|0> + |1>)/sqrt(2)
+    # Encode |+>  (|0> + |1>)/sqrt(2)
     qc = shor_encode(
         alpha=1 / np.sqrt(2),
         beta=1 / np.sqrt(2)

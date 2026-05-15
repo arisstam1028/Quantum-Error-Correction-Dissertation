@@ -23,7 +23,7 @@ class GF2:
     @staticmethod
     def symplectic_product(p: np.ndarray, q: np.ndarray, n: int) -> int:
         """
-        p=(x|z), q=(x'|z') -> x·z' + z·x' (mod 2)
+        p(x|z), q(x'|z') -> x·z' + z·x' (mod 2)
         """
         p = GF2.as_u8(p).ravel()
         q = GF2.as_u8(q).ravel()
@@ -105,14 +105,14 @@ class PauliBinary:
         return GF2.as_u8(H)
 
 
-# Canonical column sorting (signature = (Xcol bits, Zcol bits))
+# Canonical column sorting (signature  (Xcol bits, Zcol bits))
 
 class Canonicalizer:
     @staticmethod
     def canonical_column_order(Hq: np.ndarray, n: int) -> List[int]:
         """
         Deterministic column order:
-          signature(j) = (X[:,j] bits..., Z[:,j] bits...)
+          signature(j)  (X[:,j] bits..., Z[:,j] bits...)
         Lexicographic ascending, stable ties by column index.
         """
         Hq = GF2.as_u8(Hq)
@@ -184,7 +184,7 @@ class XHalfEliminator:
         return ElimResult(H=H, pivot_cols=pivots, r=len(pivots))
 
 
-# StandardForm + enforcing Eq.(18) bottom Z-mid = I
+# StandardForm + enforcing Eq.(18) bottom Z-mid  I
 
 @dataclass
 class StandardForm:
@@ -258,9 +258,9 @@ class StandardFormBuilder:
     @staticmethod
     def _force_bottom_Zmid_identity(H: np.ndarray, n: int, r: int, mid: int) -> Tuple[Optional[np.ndarray], bool]:
         """
-        Force Z[ r:r+mid , g2 ] = I_mid using ONLY row operations on rows r..m-1.
+        Force Z[ r:r+mid , g2 ]  I_mid using ONLY row operations on rows r..m-1.
         Here g2 are the mid qubit columns in the current [piv | mid | logical] ordering,
-        i.e. g2 = [r, ..., r+mid-1] (in qubit indices).
+        i.e. g2  [r, ..., r+mid-1] (in qubit indices).
 
         Robust Gauss–Jordan on the square (mid x mid) submatrix using rows r..r+mid-1.
         """
@@ -315,9 +315,9 @@ class StandardFormBuilder:
           1) canonical column sort by (Xcol,Zcol) signature
           2) deterministic elimination on X-half
           3) deterministically choose (mid,logical) partition of nonpivot columns
-             such that rank(Z_bottom,mid)=mid
+             such that rank(Z_bottom,mid)mid
           4) permute to [pivots | mid | logical]
-          5) enforce bottom Z-mid = I (Eq.18) using bottom-row ops only
+          5) enforce bottom Z-mid  I (Eq.18) using bottom-row ops only
           6) extract blocks
         """
         Hq = GF2.as_u8(Hq)
@@ -426,15 +426,15 @@ class LogicalOperatorBuilder:
         n, k, r, mid = sf.n, sf.k, sf.r, sf.mid
         A2, C1, C2, E = sf.A2, sf.C1, sf.C2, sf.E
 
-        # U2 = E^T, U3 = I_k
+        # U2  E^T, U3  I_k
         U2 = GF2.as_u8(E.T)              # k x mid
         U3 = np.eye(k, dtype=np.uint8)   # k x k
 
-        # V1 = E^T C1^T + C2^T
+        # V1  E^T C1^T + C2^T
         V1 = (U2 @ GF2.as_u8(C1.T)) & 1
         V1 = (V1 ^ GF2.as_u8(C2.T)) & 1  # k x r
 
-        # V1' = A2^T, V3' = I_k
+        # V1'  A2^T, V3'  I_k
         V1p = GF2.as_u8(A2.T)            # k x r
         V3p = np.eye(k, dtype=np.uint8)  # k x k
 
@@ -519,8 +519,8 @@ class Pretty:
     def print_logicals(logops: LogicalOps, n: int):
         for i, (x, z) in enumerate(zip(logops.Xbars, logops.Zbars)):
             print(f"logical qubit {i}:")
-            print(f"  Xbar[{i}] = {Pretty.row_XZ(x, n)}")
-            print(f"  Zbar[{i}] = {Pretty.row_XZ(z, n)}")
+            print(f'  Xbar[{i}]  {Pretty.row_XZ(x, n)}')
+            print(f'  Zbar[{i}]  {Pretty.row_XZ(z, n)}')
 
 
 # Enumerate "canonical family" base logical pairs (no brute perms)
@@ -550,7 +550,7 @@ def enumerate_logical_pairs_canonical_family(Hq: np.ndarray, n: int, k: int) -> 
     """
     Fix:
       - canonical signature column order
-      - deterministic X-half elimination => fixed pivots
+      - deterministic X-half elimination > fixed pivots
 
     Enumerate:
       - all choices of which k nonpivot columns become g3 (logical)
@@ -786,12 +786,12 @@ class StabilizerPipeline:
         # infer k
         if k is None:
             k_used = n_used - rank_val
-            print(f"Inferred rank(Hq) = {rank_val}")
-            print(f"Inferred k = n - rank = {n_used} - {rank_val} = {k_used}")
+            print(f'Inferred rank(Hq)  {rank_val}')
+            print(f'Inferred k  n - rank  {n_used} - {rank_val}  {k_used}')
         else:
             k_used = int(k)
-            print(f"Using provided k = {k_used}")
-            print(f"Computed rank(Hq) = {rank_val} (for reference)")
+            print(f'Using provided k  {k_used}')
+            print(f'Computed rank(Hq)  {rank_val} (for reference)')
 
         print()
         Pretty.print_matrix_XZ(Hq_used, "Hq (independent rows)" if reduce_dependent else "Hq")
@@ -800,8 +800,8 @@ class StabilizerPipeline:
         # canonical build
         sf = StandardFormBuilder.build_canonical(Hq_used, n=n_used, k=k_used)
 
-        print(f"Computed r = {sf.r}")
-        print(f"Computed mid = n-k-r = {sf.mid}")
+        print(f'Computed r  {sf.r}')
+        print(f'Computed mid  n-k-r  {sf.mid}')
         print(f"Canonical qubit permutation (new -> old): {sf.perm_q}")
         print()
 
@@ -825,9 +825,9 @@ class StabilizerPipeline:
             print()
 
         # Paper target (what you said the paper reports)
-        # X = 0001101 | 0000000
-        # Z = 0000000 | 0110001
-        paper_X = tuple(int(b) for b in "00011010000000")  # 14 bits total (2n=14)
+        # X  0001101 | 0000000
+        # Z  0000000 | 0110001
+        paper_X = tuple(int(b) for b in "00011010000000")  # 14 bits total (2n14)
         paper_Z = tuple(int(b) for b in "00000000110001")  # 14 bits total
 
         # list all pairs
@@ -864,14 +864,14 @@ class StabilizerPipeline:
             all_pairs_sorted = sorted(all_pairs, key=lambda p: (weight(p[0]) + weight(p[1]), p[0], p[1]))
 
             print(f"Total unique logical pairs after stabilizer expansion: {len(all_pairs_sorted)}")
-            print("Listing all pairs. Marks: '*' = chosen by build_canonical().  'PAPER' = matches paper example.\n")
+            print("Listing all pairs. Marks: '*'  chosen by build_canonical().  'PAPER'  matches paper example.\n")
 
             for idx, (X_t, Z_t) in enumerate(all_pairs_sorted):
                 mark = "*" if (X_t, Z_t) == chosen_key else " "
                 mark2 = " PAPER" if (X_t == paper_X and Z_t == paper_Z) else ""
                 print(f"{mark} [{idx:03d}]{mark2}")
-                print(f"     Xbar = {format_xz(X_t, n_used)}")
-                print(f"     Zbar = {format_xz(Z_t, n_used)}")
+                print(f'     Xbar  {format_xz(X_t, n_used)}')
+                print(f'     Zbar  {format_xz(Z_t, n_used)}')
                 print()
 
         return Hq_used, sf, logops, k_used

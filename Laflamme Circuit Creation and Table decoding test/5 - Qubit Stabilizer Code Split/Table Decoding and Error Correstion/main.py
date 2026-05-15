@@ -50,9 +50,9 @@ def simulate_measured_syndrome(qc) -> str:
 
 
 def print_section(title: str) -> None:
-    print("\n" + "=" * 80)
+    print('\n' + '' * 80)
     print(title)
-    print("=" * 80)
+    print('' * 80)
 
 
 def main() -> None:
@@ -65,7 +65,7 @@ def main() -> None:
     parsed_stabilizers = StabilizerParser.from_strings(FIVE_QUBIT_STABILIZERS)
     print("Parsed stabilizers:")
     for i, stab in enumerate(parsed_stabilizers, start=1):
-        print(f"  M{i} = {stab}")
+        print(f'  M{i}  {stab}')
 
     print_section("2. GENERAL STABILIZER-MEASUREMENT CIRCUIT BUILDER")
     builder = StabilizerMeasurementBuilder(parsed_stabilizers)

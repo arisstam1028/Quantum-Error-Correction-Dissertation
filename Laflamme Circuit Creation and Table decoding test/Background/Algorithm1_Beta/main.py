@@ -27,14 +27,14 @@ audit_cz(Hs, logical_X, qc)
 verify_stabilizer_span_algorithm1(Hs, qc)
 
 # First do basic Qiskit optimizations
-# qc_opt = transpile(qc, basis_gates=["h","s","sdg","cx","cz","cy"], optimization_level=3)
+# qc_opt  transpile(qc, basis_gates["h","s","sdg","cx","cz","cy"], optimization_level3)
 # Now do "paper-style" removability analysis on CZ gates
-# rem = find_removable_cz_gates(Hs, qc_opt)
+# rem  find_removable_cz_gates(Hs, qc_opt)
 # print("\nRemovable CZ instruction indices:", rem)
-# qc_simplified = build_simplified_by_removing_indices(qc_opt, rem)
+# qc_simplified  build_simplified_by_removing_indices(qc_opt, rem)
 # print("\nBefore:", qc_opt.count_ops())
 # print("After :", qc_simplified.count_ops())
-#simplifier = EncoderSimplifier(optimization_level=3)
+#simplifier  EncoderSimplifier(optimization_level3)
 simplifier = EncoderSimplifier(Hs, do_semantic_cz_prune=True)
 qc_simpl = simplifier.simplify(qc)
 

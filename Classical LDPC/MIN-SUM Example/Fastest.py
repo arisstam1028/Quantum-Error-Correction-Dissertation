@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 from scipy.special import erfc
 
 # Step 1️⃣: Build a regular LDPC parity-check matrix
-# LDPC = Low-Density Parity-Check codes.
+# LDPC  Low-Density Parity-Check codes.
 # They are linear error-correcting codes defined by a sparse parity-check matrix H of size m x n:
-#   - n = number of codeword bits (variable nodes)
-#   - m = number of parity-check equations (check nodes)
+#   - n  number of codeword bits (variable nodes)
+#   - m  number of parity-check equations (check nodes)
 # Each column of H corresponds to a bit, each row to a parity-check.
 # Sparsity is key: few 1’s per row/column → efficient decoding.
 def build_regular_h(n, col_w, row_w, max_attempts=1000, rng=None):
@@ -44,8 +44,8 @@ def hard_decision(q_hat):
     return (q_hat < 0).astype(int)
 
 # Step 3️⃣: Compute syndrome
-# Compute binary syndrome vector s = H * decoded^T (mod 2)
-# If s = 0 → all parity-checks satisfied → decoder converged
+# Compute binary syndrome vector s  H * decoded^T (mod 2)
+# If s  0 → all parity-checks satisfied → decoder converged
 # Otherwise, iterate up to max_iter
 def syndrome(H, c):
     return H.dot(c) % 2
@@ -62,13 +62,13 @@ def syndrome(H, c):
 #   - Sum the channel LLR + all incoming messages from other checks (excluding i)
 #   - Send updated belief to each connected check node
 # Posterior LLR:
-#   - Compute the posterior LLR for each variable node: q_hat = q + sum(R)
-#   - Make a hard decision: q_hat < 0 → 1, q_hat >= 0 → 0
+#   - Compute the posterior LLR for each variable node: q_hat  q + sum(R)
+#   - Make a hard decision: q_hat < 0 → 1, q_hat > 0 → 0
 def min_sum_decode(H, y, sigma2, max_iter=50):
     m, n = H.shape
     q = 2 * y / sigma2  # Step 2: Channel LLRs
 
-    # Initialize messages: Q = variable-to-check messages
+    # Initialize messages: Q  variable-to-check messages
     Q = np.zeros((m, n))
     Q[H == 1] = q[np.where(H == 1)[1]]
 
@@ -125,7 +125,7 @@ def min_sum_decode(H, y, sigma2, max_iter=50):
 
 # Step 5️⃣: Monte Carlo simulation
 # Repeat transmission & decoding for multiple codewords (frames) at each Eb/N0
-# Compute BER = total bit errors / total bits transmitted
+# Compute BER  total bit errors / total bits transmitted
 # Track average iterations used and elapsed time per Eb/N0
 def simulate_min_sum_ber(n=100, col_w=3, row_w=6):
     ebn0_dB = np.arange(0, 11, 1)  # 0..10 dB
@@ -158,7 +158,7 @@ def simulate_min_sum_ber(n=100, col_w=3, row_w=6):
         ber[idx] = bit_errors / total_bits
         avg_iters[idx] = total_iters / frames[idx]
 
-        print(f"Eb/N0={eb} dB, BER={ber[idx]:.3e}, avg_it={avg_iters[idx]:.2f}, time={elapsed:.2f}s")
+        print(f'Eb/N0{eb} dB, BER{ber[idx]:.3e}, avg_it{avg_iters[idx]:.2f}, time{elapsed:.2f}s')
 
     # Plot
     ebn0_lin = 10**(ebn0_dB/10)

@@ -11,7 +11,7 @@ def demo_with_stabilizers():
 
     # k inferred automatically
     StabilizerPipeline.run(stabilizers=stabilizers, k=None)
-    print("=== Demo: input stabilizers ===")
+    print(' Demo: input stabilizers ')
 
 
 def demo_with_Hq():
@@ -24,7 +24,7 @@ def demo_with_Hq():
 
     # k inferred automatically
     StabilizerPipeline.run(Hq=Hq, k=None)
-    print("\n=== Demo: input Hq ===")
+    print('\n Demo: input Hq ')
 
 def main():
     #demo_with_stabilizers()

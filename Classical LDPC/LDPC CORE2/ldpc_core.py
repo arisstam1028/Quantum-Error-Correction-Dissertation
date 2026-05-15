@@ -133,9 +133,9 @@ def simulate_min_sum_ber(
     ebn0_dB = np.array(ebn0_dB, dtype=float)
     num_snr = len(ebn0_dB)
 
-    print(f"H shape: {H.shape} (rows = N-K = {m}, cols = N = {n})")
-    print(f"Code rate Rc = {Rc:.3f}")
-    print(f"Using PEG-style regular (3,6) LDPC, layered Norm-Min-Sum (alpha={alpha})\n")
+    print(f'H shape: {H.shape} (rows  N-K  {m}, cols  N  {n})')
+    print(f'Code rate Rc  {Rc:.3f}')
+    print(f'Using PEG-style regular (3,6) LDPC, layered Norm-Min-Sum (alpha{alpha})\n')
 
     checks_to_vars, vars_to_checks = build_neighbors(H)
 
@@ -205,11 +205,7 @@ def simulate_min_sum_ber(
         s_last = syndrome(H, decoded)
         unsat_checks = np.sum(s_last != 0)
 
-        print(
-            f"Eb/N0={eb:.1f} dB, frames={frame_count}, bit_errors={bit_errors}, "
-            f"BER={ber[idx]:.3e}, avg_it={avg_iters[idx]:.2f}, "
-            f"unsat_checks_last={unsat_checks}, time={elapsed:.2f}s"
-        )
+        print(f'Eb/N0{eb:.1f} dB, frames{frame_count}, bit_errors{bit_errors}, BER{ber[idx]:.3e}, avg_it{avg_iters[idx]:.2f}, unsat_checks_last{unsat_checks}, time{elapsed:.2f}s')
 
     info = {
         "n": n,

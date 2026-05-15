@@ -6,9 +6,9 @@ import time
 def build_regular_h(n=1000, col_w=3, row_w=6, max_attempts=5000, seed=12345):
     """
     Build a regular (m x n) parity-check matrix H with:
-      - each column has weight = col_w
-      - each row has weight = row_w
-    For n=1000, col_w=3, row_w=6 -> m = n*col_w/row_w = 500.
+      - each column has weight  col_w
+      - each row has weight  row_w
+    For n1000, col_w3, row_w6 -> m  n*col_w/row_w  500.
     A fixed RNG seed is used so the same H is generated every run.
     """
     rng = np.random.RandomState(seed)
@@ -44,16 +44,16 @@ def build_regular_h(n=1000, col_w=3, row_w=6, max_attempts=5000, seed=12345):
 def hard_decision(q_hat):
     """
     Hard decision from LLRs:
-      q_hat >= 0 -> bit = 0
-      q_hat <  0 -> bit = 1
+      q_hat > 0 -> bit  0
+      q_hat <  0 -> bit  1
     """
     return (q_hat < 0).astype(int)
 
 
 def syndrome(H, c):
     """
-    Compute binary syndrome vector s = H * c^T (mod 2).
-    If s == 0 -> all parity checks satisfied (valid codeword).
+    Compute binary syndrome vector s  H * c^T (mod 2).
+    If s  0 -> all parity checks satisfied (valid codeword).
     """
     return H.dot(c) % 2
 
@@ -78,7 +78,7 @@ def min_sum_decode(H, y, sigma2, max_iter=50, c_true=None, ber_traj=None):
       converged: True if syndrome became zero before max_iter
     """
     m, n = H.shape
-    # Channel LLRs (same math as MATLAB lab): q_j = 2*y_j / sigma^2
+    # Channel LLRs (same math as MATLAB lab): q_j  2*y_j / sigma^2
     q = 2.0 * y / sigma2
 
     # Initialize variable-to-check messages Q
@@ -172,16 +172,16 @@ def simulate_min_sum_ber(
     """
     if ebn0_dB is None:
         ebn0_dB = np.arange(0, 11, 1)  # 0..10 dB
-        # ebn0_dB = np.arange(0, 7, 1)  # 0..6 dB
+        # ebn0_dB  np.arange(0, 7, 1)  # 0..6 dB
 
     ebn0_dB = np.array(ebn0_dB, dtype=float)
     num_snr = len(ebn0_dB)
 
     if frames is None:
         # default frames per SNR – your last LDPC list
-        #frames = [10, 100, 1000, 1000, 10000, 10000, 20000, 50000, 100000, 100000, 200000]
+        #frames  [10, 100, 1000, 1000, 10000, 10000, 20000, 50000, 100000, 100000, 200000]
         frames = [10, 100, 1000, 10000, 50000, 100000, 200000]
-        #frames = [10, 100, 1000, 10000, 20000, 30000, 50000, 100000, 200000, 300000, 400000]
+        #frames  [10, 100, 1000, 10000, 20000, 30000, 50000, 100000, 200000, 300000, 400000]
     frames = np.array(frames, dtype=int)
     assert len(frames) == num_snr, "frames must match length of ebn0_dB"
 
@@ -190,9 +190,9 @@ def simulate_min_sum_ber(
     k = n - m
     Rc = k / float(n)
 
-    print(f"H shape: {H.shape} (rows = N-K = {m}, cols = N = {n})")
-    print(f"Code rate Rc = {Rc:.3f}")
-    print(f"Column weight = {col_w}, Row weight = {row_w}\n")
+    print(f'H shape: {H.shape} (rows  N-K  {m}, cols  N  {n})')
+    print(f'Code rate Rc  {Rc:.3f}')
+    print(f'Column weight  {col_w}, Row weight  {row_w}\n')
 
     # All-zero codeword (0..0) and BPSK mapping (0->+1)
     c = np.zeros(n, dtype=int)
@@ -211,7 +211,7 @@ def simulate_min_sum_ber(
         EbN0_lin = 10.0 ** (eb / 10.0)
 
         # same variance formula as MATLAB:
-        # sigma^2 = 1 / (2 * Rc * Eb/N0)
+        # sigma^2  1 / (2 * Rc * Eb/N0)
         sigma2 = 1.0 / (2.0 * Rc * EbN0_lin)
         sigma = np.sqrt(sigma2)
 
@@ -248,12 +248,7 @@ def simulate_min_sum_ber(
         s_last = syndrome(H, decoded)
         unsat_checks = np.sum(s_last != 0)
 
-        print(
-            f"Eb/N0={eb:.1f} dB, frames={frames_here}, "
-            f"bit_errors={bit_errors}, BER={ber[idx]:.3e}, "
-            f"avg_it={avg_iters[idx]:.2f}, unsat_checks_last={unsat_checks}, "
-            f"time={elapsed:.2f}s"
-        )
+        print(f'Eb/N0{eb:.1f} dB, frames{frames_here}, bit_errors{bit_errors}, BER{ber[idx]:.3e}, avg_it{avg_iters[idx]:.2f}, unsat_checks_last{unsat_checks}, time{elapsed:.2f}s')
 
     info = {
         "n": n,

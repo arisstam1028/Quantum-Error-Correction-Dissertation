@@ -1,17 +1,17 @@
 """
 LDPC (500x1000, rate 1/2) Monte-Carlo simulation with:
-1) Error-limit per SNR (so “BER=0” is less likely / more meaningful)
+1) Error-limit per SNR (so “BER0” is less likely / more meaningful)
 2) Minimum-frames per SNR (prevents stopping after 1–2 frames at low SNR)
 3) Clean decoder “mode” switching (MS / NMS / OMS)
-4) Precomputed edge mask E (avoid recomputing H==1 every iteration)
+4) Precomputed edge mask E (avoid recomputing H1 every iteration)
 5) FER (Frame Error Rate) in addition to BER
 
 NOTE about your MATLAB repetition-code example:
-  snr = [0..10] dB is used as Eb/N0(dB) in the BER formula and sigma expression.
+  snr  [0..10] dB is used as Eb/N0(dB) in the BER formula and sigma expression.
 This Python code treats snr_dB_range exactly the same way: it is Eb/N0 in dB.
 
 Requires:
-  - ldpc_H_matrix.py defining H (numpy array) shape (500,1000) with col_w=3, row_w=6
+  - ldpc_H_matrix.py defining H (numpy array) shape (500,1000) with col_w3, row_w6
 """
 
 import numpy as np
@@ -22,24 +22,24 @@ from scipy.special import erfc
 
 from ldpc_H_matrix import H
 
-# ----------------------------- Sanity checks -----------------------------
+#  Sanity checks 
 assert H.shape == (500, 1000), f"Expected H shape (500,1000), got {H.shape}"
 assert np.all(H.sum(axis=0) == 3), "Column weights are not all 3"
 assert np.all(H.sum(axis=1) == 6), "Row weights are not all 6"
 
-# ----------------------------- Precompute edges (Change #4) -----------------------------
+#  Precompute edges (Change #4) 
 E = (H == 1)
 m, n = H.shape
 degs_row = E.sum(axis=1)
 rows_idx = np.arange(m)
 cols = np.arange(n)
 
-# ----------------------------- Helpers -----------------------------
+#  Helpers 
 def nzsign(x):
-    """Non-zero sign: returns +1 for x>=0, -1 for x<0 (so sign(0)=+1)."""
+    """Non-zero sign: returns +1 for x>0, -1 for x<0 (so sign(0)+1)."""
     return np.where(x < 0, -1.0, 1.0)
 
-# ----------------------------- Horizontal steps -----------------------------
+#  Horizontal steps 
 def horizontal_step_nms(Q, alpha=0.8):
     """
     Normalized Min-Sum (α-Min-Sum) horizontal step using precomputed E.
@@ -56,7 +56,7 @@ def horizontal_step_nms(Q, alpha=0.8):
     mags2[rows_idx, pos1] = np.inf
     min2 = np.min(mags2, axis=1)
 
-    # Signs (sign(0)=+1)
+    # Signs (sign(0)+1)
     sign_masked = np.where(E, nzsign(Q), 1.0)
     total_sign = np.prod(sign_masked, axis=1)
 
@@ -67,7 +67,7 @@ def horizontal_step_nms(Q, alpha=0.8):
     is_first_min = (cols[None, :] == pos1[:, None]) & E
     R_mag = np.where(is_first_min, min2[:, None], min1[:, None])
 
-    # Rows with deg <= 1: no meaningful outgoing messages
+    # Rows with deg < 1: no meaningful outgoing messages
     low_deg = (degs_row <= 1)
     if np.any(low_deg):
         R_mag[low_deg, :] = 0.0
@@ -80,7 +80,7 @@ def horizontal_step_nms(Q, alpha=0.8):
 def horizontal_step_oms(Q, beta=0.15):
     """
     Offset Min-Sum (OMS) horizontal step:
-      R = sign * max(min(|Q|)-beta, 0)
+      R  sign * max(min(|Q|)-beta, 0)
     """
     mags_masked = np.where(E, np.abs(Q), np.inf)
 
@@ -108,10 +108,10 @@ def horizontal_step_oms(Q, beta=0.15):
     R[~E] = 0.0
     return R
 
-# ----------------------------- Vertical + final LLR -----------------------------
+#  Vertical + final LLR 
 def vertical_step(R, q):
     """
-    Q_new[i,j] = q[j] + sum_{i' in M(j)} R[i',j] - R[i,j]
+    Q_new[i,j]  q[j] + sum_{i' in M(j)} R[i',j] - R[i,j]
     """
     total_R_col = R.sum(axis=0)
     Q_new = q[None, :] + total_R_col[None, :] - R
@@ -121,7 +121,7 @@ def vertical_step(R, q):
 def compute_q_hat(R, q):
     return q + R.sum(axis=0)
 
-# ----------------------------- Decoder (Change #3) -----------------------------
+#  Decoder (Change #3) 
 def decode_single(y, sigma2, max_iter=50, mode="NMS", alpha=0.8, beta=0.15):
     """
     mode:
@@ -152,7 +152,7 @@ def decode_single(y, sigma2, max_iter=50, mode="NMS", alpha=0.8, beta=0.15):
 
     return decoded, max_iter, False
 
-# ----------------------------- Simulation harness (Changes #1, #2, #5) -----------------------------
+#  Simulation harness (Changes #1, #2, #5) 
 def simulate_ldpc(
     snr_dB_range,
     max_frames_per_snr,
@@ -166,10 +166,10 @@ def simulate_ldpc(
     verbose=True,
 ):
     """
-    snr_dB_range is Eb/N0(dB) (same meaning as your MATLAB snr=[0..10]).
+    snr_dB_range is Eb/N0(dB) (same meaning as your MATLAB snr[0..10]).
     Early stop rule:
-      stop at SNR point when (frames_used >= min_frames) AND (bit_errors >= error_limit),
-      or when frames_used == max_frames.
+      stop at SNR point when (frames_used > min_frames) AND (bit_errors > error_limit),
+      or when frames_used  max_frames.
     Also computes FER.
     """
     rng = np.random.RandomState(seed)
@@ -189,7 +189,7 @@ def simulate_ldpc(
     error_limit_per_snr = _as_vec(error_limit_per_snr, "error_limit_per_snr")
     min_frames_per_snr = _as_vec(min_frames_per_snr, "min_frames_per_snr")
 
-    # code rate (assumes full-rank-ish; for your setup k=n-m is what you used)
+    # code rate (assumes full-rank-ish; for your setup kn-m is what you used)
     k = n - m
     Rc = float(k) / n
 
@@ -210,7 +210,7 @@ def simulate_ldpc(
         min_frames = int(min_frames_per_snr[idx])
 
         EbN0_lin = 10.0 ** (snr_db / 10.0)
-        sigma2 = 1.0 / (2.0 * Rc * EbN0_lin)     # same form as MATLAB: sigma = sqrt(1/(2*Rc*EbN0))
+        sigma2 = 1.0 / (2.0 * Rc * EbN0_lin)     # same form as MATLAB: sigma  sqrt(1/(2*Rc*EbN0))
         sigma = math.sqrt(sigma2)
 
         bit_errors = 0
@@ -220,8 +220,7 @@ def simulate_ldpc(
 
         if verbose:
             extra = f"alpha={alpha}" if mode in ("MS", "NMS") else f"beta={beta}"
-            print(f"\nEb/N0 = {snr_db:.2f} dB | max frames={max_frames} | min_frames={min_frames} | "
-                  f"error_limit={err_limit} | mode={mode} | {extra} | max_iter={max_iter}")
+            print(f'\nEb/N0  {snr_db:.2f} dB | max frames{max_frames} | min_frames{min_frames} | error_limit{err_limit} | mode{mode} | {extra} | max_iter{max_iter}')
 
         for f in range(max_frames):
             noise = sigma * rng.randn(n)         # same as MATLAB sigma*randn(1,N)
@@ -245,7 +244,7 @@ def simulate_ldpc(
 
             if verbose and frames_done % max(1, max_frames // 10) == 0:
                 cur_ber = bit_errors / float(frames_done * n)
-                print(f"  frame {frames_done}/{max_frames}  current BER={cur_ber:.3e}  frame_errs={frame_errors}")
+                print(f'  frame {frames_done}/{max_frames}  current BER{cur_ber:.3e}  frame_errs{frame_errors}')
 
         used_frames[idx] = frames_done
         used_errors[idx] = bit_errors
@@ -257,12 +256,11 @@ def simulate_ldpc(
 
         if verbose:
             elapsed = time.time() - t0
-            print(f"→ BER={ber[idx]:.3e}, FER={fer[idx]:.3e}, avg iters={avg_iters[idx]:.2f}, "
-                  f"frames used={frames_done}, errors={bit_errors}, elapsed={elapsed:.1f}s")
+            print(f'→ BER{ber[idx]:.3e}, FER{fer[idx]:.3e}, avg iters{avg_iters[idx]:.2f}, frames used{frames_done}, errors{bit_errors}, elapsed{elapsed:.1f}s')
 
     return snr_dB_range, ber, fer, avg_iters, used_frames, used_errors
 
-# ----------------------------- Plotting -----------------------------
+#  Plotting 
 def plot_curves(snr_dB_range, ber, fer, label_main="LDPC"):
     snr_dB_range = np.asarray(snr_dB_range, dtype=float)
     ebn0_lin = 10.0 ** (snr_dB_range / 10.0)
@@ -280,16 +278,16 @@ def plot_curves(snr_dB_range, ber, fer, label_main="LDPC"):
     plt.tight_layout()
     plt.show()
 
-# ----------------------------- Entrypoint -----------------------------
+#  Entrypoint 
 if __name__ == "__main__":
 
-    # Same scaling/meaning as your MATLAB: snr=[0..10] is Eb/N0(dB)
+    # Same scaling/meaning as your MATLAB: snr[0..10] is Eb/N0(dB)
     snr_dB = np.arange(0.0, 3.3, 0.3)
 
     # Example: max frames like your original idea (edit as you like)
     max_frames = [10, 100, 1000, 1000, 1000, 10000, 10000, 10000, 100000, 100000, 100000]
 
-    # Change #1: larger error targets at higher SNR so you don’t get BER=0 “fake points”
+    # Change #1: larger error targets at higher SNR so you don’t get BER0 “fake points”
     # (Tweak these to match your runtime budget.)
     error_limit = [200, 200, 200, 300, 500, 800, 1000, 1500, 2000, 3000, 5000]
     # Change #2: avoid stopping after 1–2 frames at low SNR

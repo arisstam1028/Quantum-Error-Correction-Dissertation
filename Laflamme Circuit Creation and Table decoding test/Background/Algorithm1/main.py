@@ -2,7 +2,7 @@
 
 from Algorithm1 import StabilizerEncoder, HsPrinter, CircuitPlotter
 
-# ----- Example from paper -----
+#  Example from paper 
 Hs = [
     [1, 0, 0, 0, 1,   1, 1, 0, 1, 1],
     [0, 1, 0, 0, 1,   0, 0, 1, 1, 0],

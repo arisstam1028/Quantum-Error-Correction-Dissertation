@@ -13,10 +13,10 @@ class BasisEncoder:
     Basis encoder: classical bits -> computational basis states.
 
     Mapping:
-      b=0 -> |0>  (do nothing, assuming qubits start in |0>)
-      b=1 -> |1>  (apply X)
+      b0 -> |0>  (do nothing, assuming qubits start in |0>)
+      b1 -> |1>  (apply X)
 
-    Mathematically: |b> = X^b |0>
+    Mathematically: |b>  X^b |0>
     """
 
     def encode_bits(self, qc: QuantumCircuit, qubits: Sequence[int], bits: Sequence[int]) -> None:
@@ -52,7 +52,7 @@ class BasisEncoder:
     def print_encoding_summary_bits(self, bits: Sequence[int], qubits: Sequence[int] | None = None) -> None:
         if qubits is None:
             qubits = list(range(len(bits)))
-        print("=== Basis Encoding Summary ===")
+        print(' Basis Encoding Summary ')
         print(f"Target qubits: {list(qubits)}")
         print(f"Input bits (q0..): {list(bits)}")
         ones = [q for q, b in zip(qubits, bits) if b == 1]
@@ -68,7 +68,7 @@ class BasisEncoder:
     ) -> None:
         if qubits is None:
             qubits = list(range(len(bits_used)))
-        print("=== Basis Encoding Summary ===")
+        print(' Basis Encoding Summary ')
         print(f"Target qubits: {list(qubits)}")
         print(f"Input integer: {value}")
         print(f"Endian mode: {'little' if little_endian else 'big'}")

@@ -21,8 +21,8 @@ import matplotlib.pyplot as plt
 ROOT = Path(__file__).resolve().parent
 
 # Corrected mapping based on your note:
-# "Closer to the book Hpefully" = symmetric depolarizing
-# "QBER DepoS" = BSC approximation
+# "Closer to the book Hpefully"  symmetric depolarizing
+# "QBER DepoS"  BSC approximation
 SYMM_PROJECT = ROOT / "5 - Qubit Stabilizer Code Full Pipeline Closer to the book Hpefully"
 BSC_PROJECT = ROOT / "5 - Qubit Stabilizer Code Full Pipeline QBER DepoS"
 
@@ -82,7 +82,7 @@ def _run_project(module, seed: int = 7):
 
 
 def _print_summary(label: str, results) -> None:
-    print(f"\n=== {label} ===")
+    print(f'\n {label} ')
     print("p        avg_qber")
     print("-" * 24)
     for p, q in zip(results.probabilities, results.average_qber):

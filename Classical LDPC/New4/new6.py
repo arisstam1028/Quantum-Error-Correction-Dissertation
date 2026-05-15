@@ -16,7 +16,7 @@ E = (H == 1)   # edge mask (precomputed)
 
 # Helper
 def nzsign(x):
-    """Sign with sign(0)=+1"""
+    """Sign with sign(0)+1"""
     return np.where(x < 0, -1.0, 1.0)
 
 
@@ -118,9 +118,7 @@ def simulate_ldpc(
         t0 = time.time()
 
         if verbose:
-            print(f"\nEb/N0 = {snr_db:.2f} dB | max frames={max_frames[i]} "
-                  f"| min_frames={min_frames[i]} | error_limit={error_limit[i]} "
-                  f"| mode={mode} | alpha={alpha} | max_iter={max_iter}")
+            print(f'\nEb/N0  {snr_db:.2f} dB | max frames{max_frames[i]} | min_frames{min_frames[i]} | error_limit{error_limit[i]} | mode{mode} | alpha{alpha} | max_iter{max_iter}')
 
         for f in range(1, max_frames[i] + 1):
             noise = sigma * rng.standard_normal(n)
@@ -136,9 +134,9 @@ def simulate_ldpc(
             it_sum += it_used
 
             if verbose and f % max(1, max_frames[i] // 10) == 0:
-                print(f"  frame {f}/{max_frames[i]}  current BER={bit_errs/(f*n):.3e}  frame_errs={frame_errs}")
+                print(f'  frame {f}/{max_frames[i]}  current BER{bit_errs / (f * n):.3e}  frame_errs{frame_errs}')
 
-            # ---------------- ERROR LIMIT STOP ----------------
+            #  ERROR LIMIT STOP 
             if f >= min_frames[i] and bit_errs >= error_limit[i]:
                 if verbose:
                     print(f"  Stopped early at frame {f}: reached {bit_errs} bit errors.")
@@ -156,8 +154,7 @@ def simulate_ldpc(
         used_errors.append(bit_errs)
 
         if verbose:
-            print(f"→ BER={ber_i:.3e}, FER={fer_i:.3e}, avg iters={avg_iters[-1]:.2f}, "
-                  f"frames used={f}, errors={bit_errs}, elapsed={time.time()-t0:.1f}s")
+            print(f'→ BER{ber_i:.3e}, FER{fer_i:.3e}, avg iters{avg_iters[-1]:.2f}, frames used{f}, errors{bit_errs}, elapsed{time.time() - t0:.1f}s')
 
     return (
         np.array(ber),

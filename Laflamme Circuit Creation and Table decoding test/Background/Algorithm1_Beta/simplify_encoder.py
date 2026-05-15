@@ -48,7 +48,7 @@ def find_removable_cz_gates(Hs, qc: QuantumCircuit) -> List[int]:
 def _stabilizer_span_matches(Hs, qc: QuantumCircuit) -> bool:
     """
     Boolean version of the successful condition from verifier v2:
-    conj=Udg_P_U and index_map=direct
+    conjUdg_P_U and index_mapdirect
     """
     import numpy as np
     from qiskit.quantum_info import Clifford, Pauli

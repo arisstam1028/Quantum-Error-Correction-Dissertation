@@ -27,8 +27,8 @@ class FiveQubitTableDecoder:
     with each stabilizer generator.
 
     Syndrome bit convention:
-        bit = 0  -> commutes with stabilizer
-        bit = 1  -> anti-commutes with stabilizer
+        bit  0  -> commutes with stabilizer
+        bit  1  -> anti-commutes with stabilizer
 
     Syndrome order:
         (M1, M2, M3, M4)

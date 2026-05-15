@@ -74,13 +74,7 @@ def simulate_observed_error_counts(
         z_counts_all.append(z_count)
         total_counts_all.append(total_count)
 
-        print(
-            f"p={p:.1f} | "
-            f"X_count={x_count}, "
-            f"Y_count={y_count}, "
-            f"Z_count={z_count}, "
-            f"Total_count={total_count}"
-        )
+        print(f'p{p:.1f} | X_count{x_count}, Y_count{y_count}, Z_count{z_count}, Total_count{total_count}')
 
     return x_counts_all, y_counts_all, z_counts_all, total_counts_all
 

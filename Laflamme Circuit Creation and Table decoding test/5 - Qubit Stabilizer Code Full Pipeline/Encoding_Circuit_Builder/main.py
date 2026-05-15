@@ -2,7 +2,7 @@
 #   Provide the five-qubit stabilizer data and build encoder circuits.
 #
 # Process:
-#   1. Define the standard-form stabilizer matrix Hs = [Hx | Hz].
+#   1. Define the standard-form stabilizer matrix Hs  [Hx | Hz].
 #   2. Define the logical X operator used for the encoded qubit.
 #   3. Build raw and simplified encoder circuits for demonstrations.
 #
@@ -26,7 +26,7 @@ def get_five_qubit_data() -> tuple[list[list[int]], list[int]]:
     for the 5-qubit example.
 
     Role in pipeline:
-        Supplies the binary symplectic input Hs = [Hx | Hz] and X_bar
+        Supplies the binary symplectic input Hs  [Hx | Hz] and X_bar
         used by the encoder circuit builder.
     """
     Hs = [

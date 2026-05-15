@@ -10,7 +10,7 @@ def safe_atanh(x):
 def hard_decision(llr):
     return (llr < 0).astype(int)
 
-# Compute the syndrome vector s = H * c mod 2
+# Compute the syndrome vector s  H * c mod 2
 def compute_syndrome(H, c):
     return H.dot(c) % 2
 
@@ -70,7 +70,7 @@ def run_ldpc_spa():
     # Option 1: Fixed received signal (for reproducibility)
     y = np.array([0.339, 1.492, 0.6115, 2.4295, 1.5465, -0.368])
     # Option 2: Add random Gaussian noise to the transmitted signal
-    # y = x + np.random.normal(0, sigma, size=x.shape)
+    # y  x + np.random.normal(0, sigma, sizex.shape)
 
     # Step 1: Hard decision
     c_hat = hard_decision(y)
@@ -83,7 +83,7 @@ def run_ldpc_spa():
     q = (2 * y) / sigma2
 
     # Step 4: Initialize variable-to-check message matrix Q
-    Q = H * q  # Only consider LLRs for positions where H=1
+    Q = H * q  # Only consider LLRs for positions where H1
 
     # Step 5: Horizontal step - check-to-variable messages
     R = horizontal_step(H, Q)

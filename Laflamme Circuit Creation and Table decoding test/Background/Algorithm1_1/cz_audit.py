@@ -6,12 +6,12 @@ from typing import List, Tuple
 def expected_cz_edges(Hs: List[List[int]], logical_X: List[int]) -> Counter[Tuple[int,int,str]]:
     """
     Returns multiset of expected CZ edges as (min(a,b), max(a,b), source_tag).
-    source_tag = 'L' for logical step, 'S<i>' for stabilizer row i.
+    source_tag  'L' for logical step, 'S<i>' for stabilizer row i.
     """
     m = len(Hs)
     n = len(Hs[0]) // 2
     k = n - m
-    msg = n - k  # for k=1, msg=n-1
+    msg = n - k  # for k1, msgn-1
 
     xL = logical_X[:n]
     zL = logical_X[n:]
@@ -26,8 +26,8 @@ def expected_cz_edges(Hs: List[List[int]], logical_X: List[int]) -> Counter[Tupl
             a, b = sorted((msg, j))
             out[(a, b, "L")] += 1
 
-    # Stabilizer CZs (Algorithm 1 uses i=0..r-1; if you use full rows, change range)
-    # Here we assume you used ctrl=i for each row you looped over.
+    # Stabilizer CZs (Algorithm 1 uses i0..r-1; if you use full rows, change range)
+    # Here we assume you used ctrli for each row you looped over.
     for i in range(m):
         ctrl = i
         for j in range(n):

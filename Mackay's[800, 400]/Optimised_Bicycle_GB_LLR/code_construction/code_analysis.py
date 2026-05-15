@@ -7,7 +7,7 @@ Process:
     compact form for simulation logs.
 
 Theory link:
-    The estimate k = n - rank(Hx) - rank(Hz) is the CSS logical dimension
+    The estimate k  n - rank(Hx) - rank(Hz) is the CSS logical dimension
     before accounting for any additional dependencies.
 """
 
@@ -68,18 +68,18 @@ def print_code_stats(Hx: np.ndarray, Hz: np.ndarray) -> None:
     Print matrix statistics before a simulation run.
     """
     stats = analyze_css_code(Hx, Hz)
-    print("\n=== CSS Code Stats ===")
-    print(f"n            = {stats.n}")
-    print(f"mx, mz       = {stats.mx}, {stats.mz}")
-    print(f"rank(Hx)     = {stats.rank_hx}")
-    print(f"rank(Hz)     = {stats.rank_hz}")
-    print(f"k estimate   = {stats.k_estimate}")
-    print(f"density(Hx)  = {stats.hx_density:.4f}")
-    print(f"density(Hz)  = {stats.hz_density:.4f}")
-    print(f"Hx row wt    = min {stats.hx_row_weights.min()} | max {stats.hx_row_weights.max()}")
-    print(f"Hz row wt    = min {stats.hz_row_weights.min()} | max {stats.hz_row_weights.max()}")
-    print(f"Hx col wt    = min {stats.hx_col_weights.min()} | max {stats.hx_col_weights.max()}")
-    print(f"Hz col wt    = min {stats.hz_col_weights.min()} | max {stats.hz_col_weights.max()}")
+    print('\n CSS Code Stats ')
+    print(f'n             {stats.n}')
+    print(f'mx, mz        {stats.mx}, {stats.mz}')
+    print(f'rank(Hx)      {stats.rank_hx}')
+    print(f'rank(Hz)      {stats.rank_hz}')
+    print(f'k estimate    {stats.k_estimate}')
+    print(f'density(Hx)   {stats.hx_density:.4f}')
+    print(f'density(Hz)   {stats.hz_density:.4f}')
+    print(f'Hx row wt     min {stats.hx_row_weights.min()} | max {stats.hx_row_weights.max()}')
+    print(f'Hz row wt     min {stats.hz_row_weights.min()} | max {stats.hz_row_weights.max()}')
+    print(f'Hx col wt     min {stats.hx_col_weights.min()} | max {stats.hx_col_weights.max()}')
+    print(f'Hz col wt     min {stats.hz_col_weights.min()} | max {stats.hz_col_weights.max()}')
 
 
 def print_matrix(name: str, M: np.ndarray) -> None:
@@ -95,7 +95,7 @@ def print_bicycle_matrices(C: np.ndarray, Hx: np.ndarray, Hz: np.ndarray) -> Non
     """
     Print the circulant block and CSS check matrices.
     """
-    print("\n=== Bicycle Code Matrices ===")
+    print('\n Bicycle Code Matrices ')
     print_matrix("C", C)
     print_matrix("Hx", Hx)
     print_matrix("Hz", Hz)

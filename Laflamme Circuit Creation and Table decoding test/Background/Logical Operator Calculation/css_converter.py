@@ -5,7 +5,7 @@ class CSSConverter:
     """
     Convert CSS parity-check matrices (Hx, Hz) into stabilizer matrix Hq in [X|Z] form:
 
-        Hq = [[Hx, 0],
+        Hq  [[Hx, 0],
               [ 0, Hz]]
 
     All arithmetic is over GF(2).
@@ -21,7 +21,7 @@ class CSSConverter:
     @staticmethod
     def validate_css(Hx, Hz) -> None:
         """
-        Check CSS commutation: Hx * Hz^T == 0 (mod 2).
+        Check CSS commutation: Hx * Hz^T  0 (mod 2).
         Raises ValueError if violated.
         """
         Hx = CSSConverter._to_gf2_matrix(Hx, name="Hx")

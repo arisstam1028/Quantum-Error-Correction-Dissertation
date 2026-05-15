@@ -111,8 +111,8 @@ class FiveQubitBPDecoder:
         self.measurement = measurement
         self.n = measurement.n_qubits
 
-        # syndrome = Hx*ez + Hz*ex
-        # if e = [ex | ez], then H_bp = [Hz | Hx]
+        # syndrome  Hx*ez + Hz*ex
+        # if e  [ex | ez], then H_bp  [Hz | Hx]
         H_bp = np.hstack([measurement.hz, measurement.hx]).astype(np.uint8)
         self.bp = BinaryBPDecoder(H_bp, max_iters=max_iters)
 
@@ -285,7 +285,7 @@ class SimulationReport:
 
     @staticmethod
     def _print_channel_summary(name: str, probabilities: list[float], results: ChannelResults) -> None:
-        print(f"\n=== {name} ===\n")
+        print(f'\n {name} \n')
         for p, frames, lf, z, x, avg in zip(
             probabilities,
             results.frames_run,
@@ -294,13 +294,7 @@ class SimulationReport:
             results.x_basis_qber,
             results.average_qber,
         ):
-            print(
-                f"p={p:.3f} | frames={frames} "
-                f"| FER={lf:.6f} "
-                f"| Z-QBER={z:.6f} "
-                f"| X-QBER={x:.6f} "
-                f"| AVG-QBER={avg:.6f}"
-            )
+            print(f'p{p:.3f} | frames{frames} | FER{lf:.6f} | Z-QBER{z:.6f} | X-QBER{x:.6f} | AVG-QBER{avg:.6f}')
 
     def print_summary(self, results: ComparisonResults) -> None:
         self._print_channel_summary("BP + Independent-BSC Approximation", results.probabilities, results.bsc)

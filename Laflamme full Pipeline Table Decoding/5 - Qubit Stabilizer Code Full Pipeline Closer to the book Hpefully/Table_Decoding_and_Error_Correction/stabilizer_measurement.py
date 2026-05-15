@@ -93,7 +93,7 @@ class StabilizerMeasurement:
         """
         self.validate_binary_error(ex, ez, self.n_qubits)
 
-        # syndrome_i = hx_i · ez + hz_i · ex mod 2
+        # syndrome_i  hx_i · ez + hz_i · ex mod 2
         syndrome_bits = (self.hx @ ez + self.hz @ ex) % 2
         return "".join(str(int(bit)) for bit in syndrome_bits)
 

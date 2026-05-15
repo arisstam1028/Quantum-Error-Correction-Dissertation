@@ -13,9 +13,9 @@ def gf2_matmul(A, B):
 
 
 # Bicycle CSS construction
-#   HX = [C | C^T]
-#   HZ = [C^T | C]
-# This guarantees HX HZ^T = 0 (CSS commutation).
+#   HX  [C | C^T]
+#   HZ  [C^T | C]
+# This guarantees HX HZ^T  0 (CSS commutation).
 def circulant_from_first_row(first_row):
     first_row = np.array(first_row, dtype=np.uint8) % 2
     r = len(first_row)
@@ -35,7 +35,7 @@ def random_sparse_first_row(r, weight, seed=None):
 def generate_bicycle_css(r=18, row_weight=3, seed=7):
     """
     Returns (HX, HZ) with shapes (r, 2r) each.
-    n = 2r physical qubits.
+    n  2r physical qubits.
     """
     random.seed(seed)
     np.random.seed(seed)
@@ -56,8 +56,8 @@ def generate_bicycle_css(r=18, row_weight=3, seed=7):
 
 # Convert (HX, HZ) rows to Qiskit Paulis
 # For CSS:
-#   X-stabilizer row h -> Pauli with x=h, z=0
-#   Z-stabilizer row h -> Pauli with x=0, z=h
+#   X-stabilizer row h -> Pauli with xh, z0
+#   Z-stabilizer row h -> Pauli with x0, zh
 def hx_rows_to_paulis(HX):
     HX = np.array(HX, dtype=bool)
     m, n = HX.shape
@@ -118,7 +118,7 @@ def plot_bipartite(G, checks, vars_, title="", max_labels=60):
 def build_commutation_graph(HX, HZ):
     """
     Bipartite graph: X-check nodes vs Z-check nodes.
-    Edge if anticommute (overlap parity = 1).
+    Edge if anticommute (overlap parity  1).
     For a valid CSS code, this graph should have 0 edges.
     """
     overlap = gf2_matmul(HX, HZ.T)  # mX x mZ
@@ -162,7 +162,7 @@ if __name__ == "__main__":
     n = HX.shape[1]
     print("n qubits:", n)
     print("HX shape:", HX.shape, "HZ shape:", HZ.shape)
-    print("CSS commutation HX*HZ^T == 0 ?", ok)
+    print('CSS commutation HX*HZ^T  0 ?', ok)
 
     # Qiskit PauliLists (stabilizer generators)
     Xstabs = hx_rows_to_paulis(HX)

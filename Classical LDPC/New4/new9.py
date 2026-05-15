@@ -1,4 +1,4 @@
-# ============================ imports ============================
+#  imports 
 import numpy as np
 import time
 import math
@@ -7,7 +7,7 @@ from scipy.special import erfc
 
 from ldpc_H_matrix import H
 
-# ============================ sanity checks ============================
+#  sanity checks 
 assert H.shape == (500, 1000)
 assert np.all(H.sum(axis=0) == 3)
 assert np.all(H.sum(axis=1) == 6)
@@ -18,11 +18,11 @@ degs_row = E.sum(axis=1)
 rows_idx = np.arange(m)
 cols = np.arange(n)
 
-# ============================ helpers ============================
+#  helpers 
 def nzsign(x):
     return np.where(x < 0, -1.0, 1.0)
 
-# ============================ horizontal steps ============================
+#  horizontal steps 
 def horizontal_step_nms(Q, alpha=0.8):
     mags = np.where(E, np.abs(Q), np.inf)
     min1 = np.min(mags, axis=1)
@@ -47,7 +47,7 @@ def horizontal_step_nms(Q, alpha=0.8):
     R[~E] = 0.0
     return R
 
-# ============================ vertical step ============================
+#  vertical step 
 def vertical_step(R, q):
     total = R.sum(axis=0)
     Q = q[None, :] + total[None, :] - R
@@ -57,14 +57,14 @@ def vertical_step(R, q):
 def compute_q_hat(R, q):
     return q + R.sum(axis=0)
 
-# ============================ decoder with per-iteration BER ============================
+#  decoder with per-iteration BER 
 def decode_single_with_iter_errors(y, sigma2, c, max_iter=50, alpha=0.8):
     """
     Returns:
-      iter_bit_errors[it] = number of bit errors after iteration (it+1)
-      final_decoded = decoded bits at the stopping iteration (or max_iter)
-      it_used = iterations used
-      converged = True/False (syndrome is zero)
+      iter_bit_errors[it]  number of bit errors after iteration (it+1)
+      final_decoded  decoded bits at the stopping iteration (or max_iter)
+      it_used  iterations used
+      converged  True/False (syndrome is zero)
     """
     q = (2.0 * y) / sigma2
     Q = np.where(E, q[None, :], 0.0)
@@ -79,14 +79,14 @@ def decode_single_with_iter_errors(y, sigma2, c, max_iter=50, alpha=0.8):
 
         iter_bit_errors[it] = int(np.sum(decoded != c))
 
-        # early success (syndrome = 0)
+        # early success (syndrome  0)
         if np.all(H @ decoded % 2 == 0):
             iter_bit_errors[it + 1:] = iter_bit_errors[it]
             return iter_bit_errors, decoded, (it + 1), True
 
     return iter_bit_errors, decoded, max_iter, False
 
-# ============================ main simulation ============================
+#  main simulation 
 def simulate_ldpc_with_iter_curves(
     snr_dB_range,
     max_frames,
@@ -101,10 +101,10 @@ def simulate_ldpc_with_iter_curves(
     For each SNR point:
       - runs Monte Carlo with early stop rule (min_frames + error_limit OR max_frames)
       - returns:
-          ber[idx]               = final BER estimate at that SNR
-          iter_ber[idx, it]      = average BER after iteration (it+1) at that SNR
-          used_frames[idx]       = frames actually simulated
-          used_errors[idx]       = bit errors counted (final decision)
+          ber[idx]                final BER estimate at that SNR
+          iter_ber[idx, it]       average BER after iteration (it+1) at that SNR
+          used_frames[idx]        frames actually simulated
+          used_errors[idx]        bit errors counted (final decision)
     """
     rng = np.random.default_rng(seed)
     k = n - m
@@ -134,11 +134,7 @@ def simulate_ldpc_with_iter_curves(
         frames_done = 0
 
         if verbose:
-            print(
-                f"\nEb/N0 = {snr_db:.2f} dB | max_frames={max_frames[idx]} | "
-                f"min_frames={min_frames[idx]} | error_limit={error_limit[idx]} | "
-                f"alpha={alpha} | max_iter={max_iter}"
-            )
+            print(f'\nEb/N0  {snr_db:.2f} dB | max_frames{max_frames[idx]} | min_frames{min_frames[idx]} | error_limit{error_limit[idx]} | alpha{alpha} | max_iter{max_iter}')
 
         step = max(1, int(max_frames[idx]) // 10)
 
@@ -161,7 +157,7 @@ def simulate_ldpc_with_iter_curves(
             # progress printing ~10 times
             if verbose and (frames_done == 1 or frames_done % step == 0):
                 cur_ber = bit_errors / float(frames_done * n)
-                print(f"  frame {frames_done}/{max_frames[idx]}  current BER = {cur_ber:.3e}")
+                print(f'  frame {frames_done}/{max_frames[idx]}  current BER  {cur_ber:.3e}')
 
             # early stop rule (only after min_frames)
             if frames_done >= int(min_frames[idx]) and bit_errors >= int(error_limit[idx]):
@@ -175,8 +171,7 @@ def simulate_ldpc_with_iter_curves(
 
         if verbose:
             elapsed = time.time() - t0
-            print(f"→ BER={ber[idx]:.3e} | frames used={frames_done} | bit errors={bit_errors} | elapsed={elapsed:.1f}s")
-
+            print(f'→ BER{ber[idx]:.3e} | frames used{frames_done} | bit errors{bit_errors} | elapsed{elapsed:.1f}s')
     # Convert per-iteration error sums into per-iteration BER curves
     iter_ber = np.zeros_like(iter_err_sum, dtype=np.float64)
     for idx in range(L):
@@ -187,7 +182,7 @@ def simulate_ldpc_with_iter_curves(
 
     return ber, iter_ber, used_frames, used_errors
 
-# ============================ plotting ============================
+#  plotting 
 def plot_ber_curve(snr_dB, ber):
     snr_dB = np.asarray(snr_dB, dtype=float)
     ebn0_lin = 10 ** (snr_dB / 10)
@@ -226,7 +221,7 @@ def plot_iter_curves(iter_ber, snr_dB, max_iter, plot_every=2):
     plt.tight_layout()
     plt.show()
 
-# ============================ entrypoint ============================
+#  entrypoint 
 if __name__ == "__main__":
 
     # Same meaning as MATLAB: Eb/N0(dB)
@@ -250,10 +245,10 @@ if __name__ == "__main__":
         verbose=True
     )
 
-    # --- Plot 1: BER vs Eb/N0 ---
+    #  Plot 1: BER vs Eb/N0 
     plot_ber_curve(snr_dB, ber)
 
-    # --- Plot 2: BER vs iteration for each SNR ---
+    #  Plot 2: BER vs iteration for each SNR 
     # If the legend is too crowded, change plot_every to 2 or 3.
     plot_iter_curves(iter_ber, snr_dB, max_iter=max_iter, plot_every=1)
 

@@ -101,7 +101,7 @@ def simulate_min_sum_ber(H,
         frames_run = 0
 
         if verbose:
-            print(f"\nEb/N0 = {ebn0_db:.2f} dB | max frames={frames_max} | error_limit={error_limit} | alpha={alpha} | max_iter={max_iter}")
+            print(f'\nEb/N0  {ebn0_db:.2f} dB | max frames{frames_max} | error_limit{error_limit} | alpha{alpha} | max_iter{max_iter}')
 
         for f in range(frames_max):
             noise = sigma * rng.randn(n)
@@ -125,8 +125,7 @@ def simulate_min_sum_ber(H,
 
         if verbose:
             elapsed = time.time() - start_time
-            print(f"→ BER={ber[idx]:.3e}, avg iters={avg_iters[idx]:.2f}, frames used={frames_run}, errors={bit_errors}, elapsed={elapsed:.1f}s")
-
+            print(f'→ BER{ber[idx]:.3e}, avg iters{avg_iters[idx]:.2f}, frames used{frames_run}, errors{bit_errors}, elapsed{elapsed:.1f}s')
     # Plot
     plt.figure(figsize=(8, 5))
     ebn0_lin = 10.0 ** (ebn0_dB_range / 10.0)

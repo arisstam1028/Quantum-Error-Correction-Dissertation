@@ -5,7 +5,7 @@ def depolarizing_branch_diagram(save_path=None, dpi=600):
     fig, ax = plt.subplots(figsize=(12, 6))
     ax.axis("off")
 
-    # ----- Coordinates (DATA coordinates, not normalized) -----
+    #  Coordinates (DATA coordinates, not normalized) 
     x_start = 0
     x_end   = 10
 
@@ -15,7 +15,7 @@ def depolarizing_branch_diagram(save_path=None, dpi=600):
     y_Z = -2.4
     y_Y = -3.6
 
-    # ----- Start node -----
+    #  Start node 
     ax.plot(x_start, y_start, "ko", markersize=8)
 
     # Left input state
@@ -25,7 +25,7 @@ def depolarizing_branch_diagram(save_path=None, dpi=600):
         fontsize=22, ha="right", va="center"
     )
 
-    # ----- Arrow helper -----
+    #  Arrow helper 
     def draw_branch(y, prob, op, out_state):
         ax.annotate(
             "",
@@ -63,7 +63,7 @@ def depolarizing_branch_diagram(save_path=None, dpi=600):
             va="center"
         )
 
-    # ----- Branches -----
+    #  Branches 
     draw_branch(
         y_I,
         r"$(1-p)$",
@@ -92,7 +92,7 @@ def depolarizing_branch_diagram(save_path=None, dpi=600):
         r"$i a|1\rangle - i b|0\rangle$"
     )
 
-    # ----- Axis limits (CRITICAL) -----
+    #  Axis limits (CRITICAL) 
     ax.set_xlim(-2, 13)
     ax.set_ylim(-4.5, 1)
 

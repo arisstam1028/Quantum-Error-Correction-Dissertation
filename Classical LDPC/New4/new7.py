@@ -3,20 +3,20 @@ LDPC Monte Carlo simulation (BER-only) with multiple curves on one plot.
 
 Features included:
 1) Fixed H loaded from ldpc_H_matrix.py (same matrix for all SNRs/frames/curves)
-2) AWGN channel with Eb/N0 scaling: sigma^2 = 1/(2*Rc*Eb/N0)
+2) AWGN channel with Eb/N0 scaling: sigma^2  1/(2*Rc*Eb/N0)
 3) Decoder supports:
    - MS  : plain Min-Sum
    - NMS : Normalized Min-Sum (alpha)
    - OMS : Offset Min-Sum (beta)
 4) Early stop per SNR using BOTH:
    - min_frames (must run at least this many frames)
-   - error_limit (stop once bit_errors >= error_limit, but only AFTER min_frames reached)
+   - error_limit (stop once bit_errors > error_limit, but only AFTER min_frames reached)
    - also never exceed max_frames
 5) Multiple BER curves on one graph (FER removed)
 
 Requirements:
 - ldpc_H_matrix.py must define:
-    H : numpy array shape (500,1000) with column weight=3 and row weight=6
+    H : numpy array shape (500,1000) with column weight3 and row weight6
 """
 
 import numpy as np
@@ -36,7 +36,7 @@ assert np.all(H.sum(axis=1) == 6), "Row weights are not all 6"
 
 # Helper: sign with 0 mapped to +1
 def nzsign(x):
-    """Non-zero sign: +1 for x>=0, -1 for x<0 (so sign(0)=+1)."""
+    """Non-zero sign: +1 for x>0, -1 for x<0 (so sign(0)+1)."""
     return np.where(x < 0, -1.0, 1.0)
 
 
@@ -47,8 +47,8 @@ def horizontal_step_min_sum(H, Q, mode="NMS", alpha=0.8, beta=0.15):
 
     mode:
       - "MS"  : plain Min-Sum
-      - "NMS" : Normalized Min-Sum: magnitude *= alpha
-      - "OMS" : Offset Min-Sum: magnitude = max(magnitude - beta, 0)
+      - "NMS" : Normalized Min-Sum: magnitude * alpha
+      - "OMS" : Offset Min-Sum: magnitude  max(magnitude - beta, 0)
     """
     E = (H == 1)
     m, n = H.shape
@@ -71,13 +71,13 @@ def horizontal_step_min_sum(H, Q, mode="NMS", alpha=0.8, beta=0.15):
     sign_masked = np.where(E, nzsign(Q), 1.0)
     total_sign = np.prod(sign_masked, axis=1)
 
-    # Outgoing sign for each edge (exclude self => total_sign * sign(Q_ij))
+    # Outgoing sign for each edge (exclude self > total_sign * sign(Q_ij))
     R_sign = total_sign[:, None] * np.where(E, nzsign(Q), 1.0)
 
     is_first_min = (np.arange(n)[None, :] == pos1[:, None]) & E
     R_mag = np.where(is_first_min, min2[:, None], min1[:, None])
 
-    # Handle rows with deg <= 1
+    # Handle rows with deg < 1
     low_deg_rows = (degs <= 1)
     if np.any(low_deg_rows):
         R_mag[low_deg_rows, :] = 0.0
@@ -101,7 +101,7 @@ def horizontal_step_min_sum(H, Q, mode="NMS", alpha=0.8, beta=0.15):
 
 # Vertical step
 def vertical_step(H, R, q):
-    """Q_new[i,j] = q[j] + sum_{i' in M(j)\{i}} R[i',j] = q + colsum(R) - R"""
+    """Q_new[i,j]  q[j] + sum_{i' in M(j)\{i}} R[i',j]  q + colsum(R) - R"""
     E = (H == 1)
     total_R_col = R.sum(axis=0)
     Q_new = q[None, :] + total_R_col[None, :] - R
@@ -110,7 +110,7 @@ def vertical_step(H, R, q):
 
 
 def compute_q_hat(R, q):
-    """q_hat[j] = q[j] + sum_i R[i,j]"""
+    """q_hat[j]  q[j] + sum_i R[i,j]"""
     return q + R.sum(axis=0)
 
 
@@ -155,7 +155,7 @@ def simulate_ldpc_ber(
 
     Enforced stopping rule per SNR:
       - Always run at least min_frames
-      - Stop early if bit_errors >= error_limit AND frames_done >= min_frames
+      - Stop early if bit_errors > error_limit AND frames_done > min_frames
       - Never exceed max_frames
     """
     rng = np.random.RandomState(seed)
@@ -169,7 +169,7 @@ def simulate_ldpc_ber(
     if not (len(max_frames_per_snr) == len(min_frames_per_snr) == len(error_limit_per_snr) == L):
         raise ValueError("max_frames_per_snr, min_frames_per_snr, error_limit_per_snr must match ebn0_dB_range length")
 
-    # Ensure min_frames <= max_frames for all points
+    # Ensure min_frames < max_frames for all points
     min_frames_per_snr = np.minimum(min_frames_per_snr, max_frames_per_snr)
 
     m, n = H.shape
@@ -201,8 +201,7 @@ def simulate_ldpc_ber(
 
         if verbose:
             extra = f"alpha={alpha}" if mode.upper() == "NMS" else (f"beta={beta}" if mode.upper() == "OMS" else "")
-            print(f"\nEb/N0 = {ebn0_db:.2f} dB | max frames={max_frames} | min_frames={min_frames} | "
-                  f"error_limit={err_limit} | mode={mode} {extra} | max_iter={max_iter}")
+            print(f'\nEb/N0  {ebn0_db:.2f} dB | max frames{max_frames} | min_frames{min_frames} | error_limit{err_limit} | mode{mode} {extra} | max_iter{max_iter}')
 
         frames_done = 0
         for f in range(max_frames):
@@ -221,12 +220,12 @@ def simulate_ldpc_ber(
             # progress print occasionally (lightweight)
             if verbose and (frames_done % max(1, max_frames // 10) == 0):
                 curr_ber = bit_errors / float(frames_done * n)
-                print(f"  frame {frames_done}/{max_frames}  current BER={curr_ber:.3e}  bit_errors={bit_errors}")
+                print(f'  frame {frames_done}/{max_frames}  current BER{curr_ber:.3e}  bit_errors{bit_errors}')
 
-            # ---- EARLY STOP: enforce error limit, but only after min_frames ----
+            #  EARLY STOP: enforce error limit, but only after min_frames 
             if (frames_done >= min_frames) and (bit_errors >= err_limit):
                 if verbose:
-                    print(f"  Stopped early at frame {frames_done}: reached {bit_errors} bit errors (limit={err_limit}).")
+                    print(f'  Stopped early at frame {frames_done}: reached {bit_errors} bit errors (limit{err_limit}).')
                 break
 
         total_bits = frames_done * n
@@ -237,8 +236,7 @@ def simulate_ldpc_ber(
 
         if verbose:
             elapsed = time.time() - start_time
-            print(f"→ BER={ber[idx]:.3e}, avg iters={avg_iters[idx]:.2f}, frames used={frames_done}, "
-                  f"errors={bit_errors}, elapsed={elapsed:.1f}s")
+            print(f'→ BER{ber[idx]:.3e}, avg iters{avg_iters[idx]:.2f}, frames used{frames_done}, errors{bit_errors}, elapsed{elapsed:.1f}s')
 
     return ebn0_dB_range, ber, avg_iters, used_frames, bit_errors_out
 
@@ -250,19 +248,19 @@ if __name__ == "__main__":
 
     # You can keep your existing lists (edit as you like)
     max_frames = [10, 100, 1000, 1000, 10000, 10000, 20000, 50000, 100000, 100000, 100000]
-    min_frames = [10, 20, 20, 30, 50, 80, 100, 150, 200, 200, 200]  # must be <= max_frames
+    min_frames = [10, 20, 20, 30, 50, 80, 100, 150, 200, 200, 200]  # must be < max_frames
     error_limit = [200, 200, 200, 300, 500, 800, 1000, 1500, 2000, 3000, 5000]
 
     max_iter = 50
     seed = 12345
 
-    # ---- MULTIPLE CURVES CHOICE ----
+    #  MULTIPLE CURVES CHOICE 
     # A) NMS with different alphas (recommended)
     mode = "NMS"
     alpha_list = [0.70, 0.75, 0.80, 0.85, 0.90]
 
     # If you ever want B) compare modes instead, use for example:
-    # curves = [("MS", None, None), ("NMS", 0.8, None), ("OMS", None, 0.15)]
+    # curves  [("MS", None, None), ("NMS", 0.8, None), ("OMS", None, 0.15)]
 
     all_bers = {}
 
@@ -287,7 +285,7 @@ if __name__ == "__main__":
             print(f"{ebn0s[i]:7.2f}  {max_frames[i]:9d}  {min_frames[i]:9d}  {error_limit[i]:8d}  "
                   f"{used_frames[i]:9d}  {bit_errors[i]:9d}  {ber[i]:.3e}   {avg_iters[i]:7.2f}")
 
-    # ---- Plot: Uncoded + multiple BER curves ----
+    #  Plot: Uncoded + multiple BER curves 
     plt.figure(figsize=(8, 5))
 
     ebn0_lin = 10.0 ** (ebn0_dB_range / 10.0)

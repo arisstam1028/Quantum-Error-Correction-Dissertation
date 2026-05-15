@@ -10,7 +10,7 @@ Updates included (per your requests):
  - Keeps vectorised horizontal (min1/min2/sign product) and vertical (column sums) steps.
 
 Requirements:
- - ldpc_H_matrix.py must define H (numpy array) of shape (500, 1000) with col weight=3 and row weight=6.
+ - ldpc_H_matrix.py must define H (numpy array) of shape (500, 1000) with col weight3 and row weight6.
 """
 
 import numpy as np
@@ -30,7 +30,7 @@ assert np.all(H.sum(axis=1) == 6), "Row weights are not all 6"
 
 # Helper: sign with 0 mapped to +1 (prevents sign-product collapsing to 0)
 def nzsign(x):
-    """Non-zero sign: returns +1 for x>=0, -1 for x<0 (so sign(0)=+1)."""
+    """Non-zero sign: returns +1 for x>0, -1 for x<0 (so sign(0)+1)."""
     return np.where(x < 0, -1.0, 1.0)
 
 
@@ -41,13 +41,13 @@ def horizontal_step_min_sum(H, Q):
 
     Inputs:
       H : (m x n) binary parity-check matrix
-      Q : (m x n) variable-to-check messages (only meaningful where H==1)
+      Q : (m x n) variable-to-check messages (only meaningful where H1)
     Returns:
-      R : (m x n) check-to-variable messages (only nonzero where H==1)
+      R : (m x n) check-to-variable messages (only nonzero where H1)
 
     Math:
       For check node i and variable node j in N(i):
-        R[i,j] = prod_{j' in N(i)\{j}} sign(Q[i,j']) * min_{j' in N(i)\{j}} |Q[i,j']|
+        R[i,j]  prod_{j' in N(i)\{j}} sign(Q[i,j']) * min_{j' in N(i)\{j}} |Q[i,j']|
 
     Implementation:
       Per row i we compute:
@@ -57,9 +57,9 @@ def horizontal_step_min_sum(H, Q):
         - total_sign: product of signs across edges in the row
 
       Then for each edge (i,j):
-        R_sign(i,j) = total_sign(i) * sign(Q[i,j])   (since inverse == itself for ±1)
-        R_mag(i,j)  = min2(i) if j == pos1(i) else min1(i)
-        R(i,j) = R_sign * R_mag
+        R_sign(i,j)  total_sign(i) * sign(Q[i,j])   (since inverse  itself for ±1)
+        R_mag(i,j)   min2(i) if j  pos1(i) else min1(i)
+        R(i,j)  R_sign * R_mag
     """
 
     E = (H == 1)
@@ -94,7 +94,7 @@ def horizontal_step_min_sum(H, Q):
     # Magnitudes: min2 for first-min positions else min1
     R_mag = np.where(is_first_min, min2[:, None], min1[:, None])
 
-    # Rows with deg <= 1 have no meaningful messages
+    # Rows with deg < 1 have no meaningful messages
     low_deg_rows = (degs <= 1)
     if np.any(low_deg_rows):
         R_mag[low_deg_rows, :] = 0.0
@@ -110,11 +110,11 @@ def vertical_step(H, R, q):
     r"""
     Vectorised vertical step.
 
-    Q_new[i,j] = q[j] + sum_{i' in M(j) \ {i}} R[i', j]
+    Q_new[i,j]  q[j] + sum_{i' in M(j) \ {i}} R[i', j]
 
-    Let total_R_col[j] = sum_{i' in M(j)} R[i', j]
+    Let total_R_col[j]  sum_{i' in M(j)} R[i', j]
     Then:
-      Q_new[i,j] = q[j] + total_R_col[j] - R[i,j]
+      Q_new[i,j]  q[j] + total_R_col[j] - R[i,j]
     """
 
     E = (H == 1)
@@ -126,7 +126,7 @@ def vertical_step(H, R, q):
 
 # Vectorised final LLR computation
 def compute_q_hat(R, q):
-    """q_hat[j] = q[j] + sum_i R[i,j]"""
+    """q_hat[j]  q[j] + sum_i R[i,j]"""
     return q + R.sum(axis=0)
 
 
@@ -138,7 +138,7 @@ def min_sum_decode_single(H, y, sigma2, max_iter=50):
     """
     m, n = H.shape
 
-    # Channel LLRs for BPSK: x in {+1,-1}, y = x + noise
+    # Channel LLRs for BPSK: x in {+1,-1}, y  x + noise
     q = (2.0 * y) / sigma2
 
     # Initialize variable-to-check messages Q with q on edges
@@ -216,7 +216,7 @@ def simulate_min_sum_ber(H,
         total_bits = frames_this * n
 
         if verbose:
-            print(f"\nEb/N0 = {ebn0_db:.2f} dB, sigma^2={sigma2:.5e}, frames={frames_this}")
+            print(f'\nEb/N0  {ebn0_db:.2f} dB, sigma^2{sigma2:.5e}, frames{frames_this}')
 
         for f in range(frames_this):
             noise = sigma * rng.randn(n)
@@ -228,14 +228,14 @@ def simulate_min_sum_ber(H,
             total_iters += it_used
 
             if verbose and (f + 1) % max(1, frames_this // 10) == 0:
-                print(f"  frame {f+1}/{frames_this}  current BER estimate = {bit_errors / ((f+1)*n):.3e}")
+                print(f'  frame {f + 1}/{frames_this}  current BER estimate  {bit_errors / ((f + 1) * n):.3e}')
 
         ber[idx] = bit_errors / float(total_bits)
         avg_iters[idx] = float(total_iters) / frames_this
 
         if verbose:
             elapsed = time.time() - start_time
-            print(f"-> Eb/N0 {ebn0_db:.2f} dB: BER = {ber[idx]:.3e}, avg iters = {avg_iters[idx]:.2f}, elapsed={elapsed:.1f}s")
+            print(f'-> Eb/N0 {ebn0_db:.2f} dB: BER  {ber[idx]:.3e}, avg iters  {avg_iters[idx]:.2f}, elapsed{elapsed:.1f}s')
 
     # Plot BER curve
     plt.figure(figsize=(8, 5))

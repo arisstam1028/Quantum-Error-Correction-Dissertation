@@ -302,7 +302,7 @@ class StabilizerMeasurementBuilder:
 
         Qiskit returns bitstrings with the highest classical bit on the left,
         so we reverse the string to recover:
-            syndrome = (M1, M2, ..., Mr)
+            syndrome  (M1, M2, ..., Mr)
         """
         return counts_key[::-1]
 
@@ -319,7 +319,7 @@ class StabilizerMeasurementBuilder:
         Measure one stabilizer using one ancilla.
 
         Procedure:
-            ancilla |0> --H-- controlled-Pauli-string --H-- measure
+            ancilla |0> H controlled-Pauli-string H measure
         """
         qc.h(ancilla)
 

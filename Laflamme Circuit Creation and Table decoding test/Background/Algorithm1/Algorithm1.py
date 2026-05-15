@@ -146,10 +146,10 @@ class HsPrinter:
     @staticmethod
     def print_all(encoder: StabilizerEncoder):
         spec = encoder.spec
-        print(f"n = {spec.n}")
-        print(f"k = {spec.k}")
-        print(f"r = {spec.r}")
-        print(f"Number of stabilizers = {spec.stabilizers}\n")
+        print(f'n  {spec.n}')
+        print(f'k  {spec.k}')
+        print(f'r  {spec.r}')
+        print(f'Number of stabilizers  {spec.stabilizers}\n')
 
         print("Hs (X | Z):")
         for row in encoder.Hs:

@@ -1,4 +1,4 @@
-# ============================ imports ============================
+#  imports 
 import numpy as np
 import time
 import math
@@ -7,7 +7,7 @@ from scipy.special import erfc
 
 from ldpc_H_matrix import H
 
-# ============================ sanity checks ============================
+#  sanity checks 
 assert H.shape == (500, 1000)
 assert np.all(H.sum(axis=0) == 3)
 assert np.all(H.sum(axis=1) == 6)
@@ -18,11 +18,11 @@ degs_row = E.sum(axis=1)
 rows_idx = np.arange(m)
 cols = np.arange(n)
 
-# ============================ helpers ============================
+#  helpers 
 def nzsign(x):
     return np.where(x < 0, -1.0, 1.0)
 
-# ============================ horizontal steps ============================
+#  horizontal steps 
 def horizontal_step_nms(Q, alpha=0.8):
     mags = np.where(E, np.abs(Q), np.inf)
     min1 = np.min(mags, axis=1)
@@ -47,7 +47,7 @@ def horizontal_step_nms(Q, alpha=0.8):
     R[~E] = 0.0
     return R
 
-# ============================ vertical step ============================
+#  vertical step 
 def vertical_step(R, q):
     total = R.sum(axis=0)
     Q = q[None, :] + total[None, :] - R
@@ -57,10 +57,10 @@ def vertical_step(R, q):
 def compute_q_hat(R, q):
     return q + R.sum(axis=0)
 
-# ============================ decoder with iteration BER ============================
+#  decoder with iteration BER 
 def decode_single_with_iter_ber(y, sigma2, c, max_iter=50, alpha=0.8):
     """
-    Returns an array iter_bit_errors[iter] = number of bit errors after that iteration.
+    Returns an array iter_bit_errors[iter]  number of bit errors after that iteration.
     """
     q = (2.0 * y) / sigma2
     Q = np.where(E, q[None, :], 0.0)
@@ -83,7 +83,7 @@ def decode_single_with_iter_ber(y, sigma2, c, max_iter=50, alpha=0.8):
 
     return iter_bit_errors
 
-# ============================ main simulation ============================
+#  main simulation 
 def simulate_ldpc_and_iter_curve(
     snr_dB_range,
     max_frames,
@@ -120,9 +120,7 @@ def simulate_ldpc_and_iter_curve(
         frames_done = 0
 
         if verbose:
-            print(f"\nEb/N0 = {snr_db:.2f} dB | max_frames={max_frames[idx]} | "
-                  f"min_frames={min_frames[idx]} | error_limit={error_limit[idx]} | "
-                  f"alpha={alpha} | max_iter={max_iter}")
+            print(f'\nEb/N0  {snr_db:.2f} dB | max_frames{max_frames[idx]} | min_frames{min_frames[idx]} | error_limit{error_limit[idx]} | alpha{alpha} | max_iter{max_iter}')
 
         for f in range(max_frames[idx]):
             noise = sigma * rng.standard_normal(n)
@@ -145,7 +143,7 @@ def simulate_ldpc_and_iter_curve(
                 step = max(1, max_frames[idx] // 10)
                 if frames_done % step == 0 or frames_done == 1:
                     cur_ber = bit_errors / float(frames_done * n)
-                    print(f"  frame {frames_done}/{max_frames[idx]}  current BER = {cur_ber:.3e}")
+                    print(f'  frame {frames_done}/{max_frames[idx]}  current BER  {cur_ber:.3e}')
 
             # early stop rule (only after min_frames)
             if frames_done >= min_frames[idx] and bit_errors >= error_limit[idx]:
@@ -159,13 +157,12 @@ def simulate_ldpc_and_iter_curve(
 
         if verbose:
             elapsed = time.time() - t0
-            print(f"→ BER={ber[idx]:.3e} | frames used={frames_done} | bit errors={bit_errors} | elapsed={elapsed:.1f}s")
-
+            print(f'→ BER{ber[idx]:.3e} | frames used{frames_done} | bit errors{bit_errors} | elapsed{elapsed:.1f}s')
     # final iteration BER curve (averaged over frames at that SNR)
     if iter_frames > 0:
         iter_ber = iter_ber_sum / float(iter_frames * n)
         if verbose:
-            print(f"\nIteration-BER curve collected at Eb/N0={iter_ber_snr_db:.2f} dB using {iter_frames} frames.")
+            print(f'\nIteration-BER curve collected at Eb/N0{iter_ber_snr_db:.2f} dB using {iter_frames} frames.')
     else:
         iter_ber = np.full(max_iter, np.nan)
         if verbose:
@@ -173,14 +170,14 @@ def simulate_ldpc_and_iter_curve(
 
     return ber, iter_ber, used_frames, used_errors
 
-# ============================ entrypoint ============================
+#  entrypoint 
 if __name__ == "__main__":
 
     snr_dB = np.arange(0, 3.3, 0.3)
 
     max_frames = [10, 100, 100, 100, 100, 1000, 1000, 10000, 50000, 100000, 100000]
     error_limit = [100] * 11
-    #error_limit = [200, 200, 200, 300, 500, 800, 1000, 1500, 2000, 3000, 5000]
+    #error_limit  [200, 200, 200, 300, 500, 800, 1000, 1500, 2000, 3000, 5000]
     min_frames = [10, 20, 20, 30, 50, 80, 100, 150, 200, 200, 200]
 
     alpha = 0.8

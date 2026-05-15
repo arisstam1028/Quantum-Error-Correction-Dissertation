@@ -10,7 +10,7 @@ def plot_ber_vs_iteration_all_snr(ebn0_dB, ber_vs_iter):
     Plot BER vs iteration for ALL Eb/N0 values together.
 
     ebn0_dB      : array of Eb/N0 values (e.g. [0,1,...,10])
-    ber_vs_iter  : shape = [len(ebn0_dB), max_iter]
+    ber_vs_iter  : shape  [len(ebn0_dB), max_iter]
                     Each row is the BER trajectory for one SNR point.
     """
 

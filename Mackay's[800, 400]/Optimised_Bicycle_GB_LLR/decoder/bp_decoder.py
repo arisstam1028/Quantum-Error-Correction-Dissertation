@@ -28,7 +28,7 @@ def _prefix_suffix_products_inplace(
     out: np.ndarray,
 ) -> np.ndarray:
     """
-    For values[0..d-1], return out[k] = product of all values except values[k].
+    For values[0..d-1], return out[k]  product of all values except values[k].
 
     Role in pipeline:
         Computes the check-node exclusion product without allocating a new
@@ -127,7 +127,7 @@ class BinaryBPDecoder:
 
         Preserved:
         - same decode signature
-        - same hard decision x_hat[v] = 1 if bitLLR[v] < 0 else 0
+        - same hard decision x_hat[v]  1 if bitLLR[v] < 0 else 0
         - same syndrome stopping rule
         """
         syndrome = np.asarray(syndrome, dtype=np.uint8)

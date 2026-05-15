@@ -31,8 +31,8 @@ def test_depolarizing_channel(p: float, n_qubits: int = 10000, seed: int = 42) -
     y_count = counts.get("Y", 0)
     z_count = counts.get("Z", 0)
 
-    print("\n=== Depolarizing Channel Test ===")
-    print(f"Samples: {n_qubits}, p = {p}\n")
+    print('\n Depolarizing Channel Test ')
+    print(f'Samples: {n_qubits}, p  {p}\n')
 
     print("Counts:")
     print(f"I: {i_count}")

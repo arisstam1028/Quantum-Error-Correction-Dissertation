@@ -277,7 +277,7 @@ class SimulationRunner:
                 syndrome = self.measurement.compute_syndrome(ex, ez)
                 cx, cz = self.decoder.decode(syndrome)
 
-                # residual = correction + error  (mod 2)
+                # residual  correction + error  (mod 2)
                 rx, rz = BinarySymplectic.add_errors(cx, cz, ex, ez)
                 logical = self.code.classify_residual(rx, rz)
 
@@ -333,7 +333,7 @@ class SimulationReport:
         self.code = code
 
     def print_summary(self, results: SimulationResults) -> None:
-        print("\n=== Simulation Results ===\n")
+        print('\n Simulation Results \n')
 
         for p, frames, lf, z, x, avg in zip(
             results.probabilities,
@@ -343,13 +343,7 @@ class SimulationReport:
             results.x_basis_qber,
             results.average_qber,
         ):
-            print(
-                f"p={p:.3f} | frames={frames} "
-                f"| logical={lf:.6f} "
-                f"| Z-QBER={z:.6f} "
-                f"| X-QBER={x:.6f} "
-                f"| AVG-QBER={avg:.6f}"
-            )
+            print(f'p{p:.3f} | frames{frames} | logical{lf:.6f} | Z-QBER{z:.6f} | X-QBER{x:.6f} | AVG-QBER{avg:.6f}')
 
     def show_plot(self, results: SimulationResults) -> None:
         StabilizerCircuitPlotter.show_metric_curves(

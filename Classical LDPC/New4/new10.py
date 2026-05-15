@@ -1,8 +1,8 @@
 # LDPC: BER vs Iteration curves for MULTIPLE Eb/N0 values (same axes)
-# - Uses your fixed H from ldpc_H_matrix.py (500x1000, col_w=3, row_w=6)
+# - Uses your fixed H from ldpc_H_matrix.py (500x1000, col_w3, row_w6)
 # - Normalized Min-Sum (alpha-Min-Sum)
 # - For each Eb/N0 point: run Monte Carlo frames and average BER after each iteration
-# - Early stop per Eb/N0 using: (frames_done >= min_frames) AND (final_bit_errors >= error_limit)
+# - Early stop per Eb/N0 using: (frames_done > min_frames) AND (final_bit_errors > error_limit)
 # - Prints progress while running
 
 import numpy as np
@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 from ldpc_H_matrix import H
 
-# ============================ sanity checks ============================
+#  sanity checks 
 assert H.shape == (500, 1000), f"Expected (500,1000), got {H.shape}"
 assert np.all(H.sum(axis=0) == 3), "Column weights not all 3"
 assert np.all(H.sum(axis=1) == 6), "Row weights not all 6"
@@ -23,12 +23,12 @@ degs_row = E.sum(axis=1)
 rows_idx = np.arange(m)
 cols = np.arange(n)
 
-# ============================ helpers ============================
+#  helpers 
 def nzsign(x):
-    # sign(0)=+1
+    # sign(0)+1
     return np.where(x < 0, -1.0, 1.0)
 
-# ============================ horizontal step (NMS) ============================
+#  horizontal step (NMS) 
 def horizontal_step_nms(Q, alpha=0.8):
     mags = np.where(E, np.abs(Q), np.inf)
 
@@ -55,7 +55,7 @@ def horizontal_step_nms(Q, alpha=0.8):
     R[~E] = 0.0
     return R
 
-# ============================ vertical + final LLR ============================
+#  vertical + final LLR 
 def vertical_step(R, q):
     total = R.sum(axis=0)
     Q = q[None, :] + total[None, :] - R
@@ -65,14 +65,14 @@ def vertical_step(R, q):
 def compute_q_hat(R, q):
     return q + R.sum(axis=0)
 
-# ============================ decoder: per-iteration bit errors ============================
+#  decoder: per-iteration bit errors 
 def decode_single_with_iter_errors(y, sigma2, c, max_iter=50, alpha=0.8):
     """
     Returns:
-      iter_bit_errors[it] = #bit errors after iteration (it+1)
-      decoded_final       = final decoded bits (at early stop iteration or max_iter)
-      it_used             = iterations used
-      converged           = True if syndrome==0 at early stop
+      iter_bit_errors[it]  #bit errors after iteration (it+1)
+      decoded_final        final decoded bits (at early stop iteration or max_iter)
+      it_used              iterations used
+      converged            True if syndrome0 at early stop
     """
     q = (2.0 * y) / sigma2
     Q = np.where(E, q[None, :], 0.0)
@@ -95,7 +95,7 @@ def decode_single_with_iter_errors(y, sigma2, c, max_iter=50, alpha=0.8):
 
     return iter_bit_errors, decoded, max_iter, False
 
-# ============================ simulation for one Eb/N0 ============================
+#  simulation for one Eb/N0 
 def simulate_iteration_curve(
     ebn0_db,
     max_frames,
@@ -107,7 +107,7 @@ def simulate_iteration_curve(
     verbose=True,
 ):
     """
-    Produces iter_ber[it] = average BER after iteration (it+1) for a fixed Eb/N0.
+    Produces iter_ber[it]  average BER after iteration (it+1) for a fixed Eb/N0.
     Early stop uses FINAL decision bit-errors, not per-iteration.
     """
     rng = np.random.default_rng(seed)
@@ -132,10 +132,7 @@ def simulate_iteration_curve(
     step = max(1, max_frames // 10)
 
     if verbose:
-        print(
-            f"\nEb/N0 = {ebn0_db:.2f} dB | max_frames={max_frames} | min_frames={min_frames} | "
-            f"error_limit={error_limit} | alpha={alpha} | max_iter={max_iter}"
-        )
+        print(f'\nEb/N0  {ebn0_db:.2f} dB | max_frames{max_frames} | min_frames{min_frames} | error_limit{error_limit} | alpha{alpha} | max_iter{max_iter}')
 
     for f in range(max_frames):
         noise = sigma * rng.standard_normal(n)
@@ -153,7 +150,7 @@ def simulate_iteration_curve(
 
         if verbose and (frames_done == 1 or frames_done % step == 0):
             cur_ber_final = bit_errors_final / float(frames_done * n)
-            print(f"  frame {frames_done}/{max_frames}  current FINAL-BER = {cur_ber_final:.3e}")
+            print(f'  frame {frames_done}/{max_frames}  current FINAL-BER  {cur_ber_final:.3e}')
 
         if frames_done >= min_frames and bit_errors_final >= error_limit:
             if verbose:
@@ -169,14 +166,11 @@ def simulate_iteration_curve(
     if verbose:
         elapsed = time.time() - t0
         final_ber = bit_errors_final / float(frames_done * n)
-        print(
-            f"→ Done Eb/N0={ebn0_db:.2f} dB | frames={frames_done} | final bit errors={bit_errors_final} | "
-            f"FINAL BER={final_ber:.3e} | avg iters={avg_iters:.2f} | elapsed={elapsed:.1f}s"
-        )
+        print(f'→ Done Eb/N0{ebn0_db:.2f} dB | frames{frames_done} | final bit errors{bit_errors_final} | FINAL BER{final_ber:.3e} | avg iters{avg_iters:.2f} | elapsed{elapsed:.1f}s')
 
     return iter_ber
 
-# ============================ entrypoint: MULTIPLE Eb/N0 curves ============================
+#  entrypoint: MULTIPLE Eb/N0 curves 
 if __name__ == "__main__":
 
     # Pick the Eb/N0 values you want iteration-curves for (multiple curves on same axes)

@@ -114,7 +114,7 @@ def run_ldpc_spa_popup():
     sigma2 = 1.0
     sigma = np.sqrt(sigma2)
     y = np.array([0.339,1.492,0.6115,2.4295,1.5465,-0.368])
-    # y = x + np.random.normal(0, sigma, size=x.shape)  # Uncomment for random noise
+    # y  x + np.random.normal(0, sigma, sizex.shape)  # Uncomment for random noise
 
     # Hard decision before decoding
     c_hat = hard_decision(y)
